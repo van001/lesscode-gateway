@@ -2,9 +2,9 @@
   "name": "lcgateway",
   "version": "1.0.0",
   "description": "protocol gateway",
-  "main": "gateway.js",
+  "main": "./src/gateway.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -18,8 +18,11 @@
   "homepage": "https://github.com/van001/lcgateway#readme",
   "dependencies": {
     "express": "^4.17.1",
-    "lccore": "github:van001/lccore#master",
+    "lccore": "van001/lccore#master",
     "save": "^2.4.0",
     "yaml": "^1.10.0"
+  },
+  "devDependencies": {
+    "jest": "^26.4.0"
   }
 }
