@@ -5,8 +5,13 @@
  * 3. Start express                         :   expStart
  */
 const { $, lfold, hint, print, memoize} = require('lccore')
-const express = require('express')
-const load = memoize((path) => $(hint(`Loaded ${path}...`), require)(path))
+// express initialization...
+const express = require('express')()
+const bodyParser = require("body-parser")
+express.use(bodyParser.urlencoded({ extended: false }));
+express.use(bodyParser.json());
+
+const load = memoize((path) => $(hint(`Loaded ${path}...`), require)(path)) //memoize 
 // Endpoint execution
 const expRegEndpoint = basepath => path => method => operationid => express => {
     const expLoadOperation = basepath => operationid => {
@@ -16,7 +21,6 @@ const expRegEndpoint = basepath => path => method => operationid => express => {
                 try {
                     await load((`${process.cwd()}/functions${basepath}/${operationid}`))(req, res, next)
                 } catch (err) {
-                    
                     next(err)
                 }
             }
@@ -39,7 +43,7 @@ const expRegSpecs = specs => express => {
 const expStart = port => express => express.instance.listen(port, () => print(`Listening at ${port}`))
 
 // Create
-const expCreate = () => ({ instance: express() })
+const expCreate = () => ({ instance: express})
 
 // Export
 module.exports = { expCreate, expStart, expRegSpecs }
