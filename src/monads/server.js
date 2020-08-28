@@ -5,15 +5,10 @@
  * 3. Start express                         :   expStart
  */
 const { $, $M, lfold, hint, print, memoize } = require('lccore')
-const { DirBrowser, SwaggerValidate } = require('./fs')
 const load = memoize((path) => $(hint(`Loaded ${path}...`), require)(path)) //memoize 
 const { OpenApiValidator } = require('express-openapi-validator')
-const yamlParser = require('yaml')
-
-const Hint = msg => async val => hint(msg)(val)
-// express initialization...
-
 const swaggerUi = require('swagger-ui-express')
+const Hint = msg => async val => hint(msg)(val)
 
 // Load Specs, Register endpoints
 const RegisterSpec = spec => async express => {
@@ -68,9 +63,7 @@ const Express = config => async jsons => {
     return express
 }
 
-/**
- * 
- */
+
 const SwaggerUI = config => async express => {
     print(`Registering Swagger UI with express...`)
     express.use('/', swaggerUi.serve, swaggerUi.setup(config.json))
@@ -91,8 +84,6 @@ const ErrorHandler = async express => {
  */
 const OpenAPIValidate = config => async express => await new OpenApiValidator(config).install(express);
 
-
-
-$M(Express({ port: 8080 }), DirBrowser()(SwaggerValidate))('rest').then().catch(err => print(`Failed to load express ${err}`))
+//$M(Express({ port: 8080 }), DirBrowser()(SwaggerValidate))('rest').then().catch(err => print(`Failed to load express ${err}`))
 //Export
 module.exports = { Express }
