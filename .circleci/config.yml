@@ -7,7 +7,7 @@ jobs:
       name: node/default
     steps:
       - checkout
-      - node:
+      - node/without-cache:
           steps:
             - run: npm install
             - run: npm run test
