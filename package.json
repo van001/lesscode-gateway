@@ -17,11 +17,15 @@
   },
   "homepage": "https://github.com/van001/lcgateway#readme",
   "dependencies": {
+    "@apidevtools/swagger-parser": "^10.0.1",
     "body-parser": "^1.19.0",
     "express": "^4.17.1",
+    "express-openapi-validator": "^3.16.10",
     "lccore": "van001/lccore#master",
     "save": "^2.4.0",
-    "yaml": "^1.10.0"
+    "swagger-ui-express": "^4.1.4",
+    "yaml": "^1.10.0",
+    "yamljs": "^0.3.0"
   },
   "devDependencies": {
     "jest": "^26.4.0"
