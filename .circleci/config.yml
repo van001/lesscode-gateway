@@ -7,8 +7,10 @@ jobs:
       name: node/default
     steps:
       - checkout
-      - node/without-cache:
+      - node/with-cache:
           steps:
+            - run: npm uninstall lccore
+            - run: npm install --save van001/lccore/#master
             - run: npm install
             - run: npm run test
 workflows:
