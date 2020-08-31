@@ -25,7 +25,7 @@ const Gateway = async config => {
     }
 }
 
-//Gateway({ rest: { port: 8080 } }).catch(err => print(`[ERROR] : Gateway crashed : ${err}`))
+Gateway({ rest: { port: 8080 } }).catch(err => print(`[ERROR] : Gateway crashed : ${err}`))
 module.exports = { Gateway }
 
 

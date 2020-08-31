@@ -21,7 +21,7 @@ const RegisterSpec = spec => async express => {
                 try {
                     //print(spec.definitions)
                     try {
-                        await load((`${process.cwd()}/functions/${operationid}`))(req, res, next)
+                        await load((`${process.cwd()}/src/functions/${operationid}`))(req, res, next)
                     } catch (err) {
                         next(err)
                     }
