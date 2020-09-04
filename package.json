@@ -1,6 +1,6 @@
 {
   "name": "lcgateway",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "protocol gateway",
   "main": "./src/gateway.js",
   "scripts": {
@@ -30,5 +30,7 @@
   "devDependencies": {
     "jest": "^26.4.0"
   },
-  "publishConfig": { "registry": "https://npm.pkg.github.com/" }
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  }
 }
