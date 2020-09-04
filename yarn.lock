@@ -2627,9 +2627,10 @@ kleur@^3.0.3:
   resolved "https://registry.yarnpkg.com/kleur/-/kleur-3.0.3.tgz#a79c9ecc86ee1ce3fa6206d1216c501f147fc07e"
   integrity sha512-eTIzlVOSUR+JxdDFepEYcBMtZ9Qqdef+rnzWdRZuMbOywu5tO2w2N7rqjoANZ5k9vywhL6Br1VRjUIgTQx4E8w==
 
-lccore@van001/lccore#master:
+lccore@^1.0.0:
   version "1.0.0"
-  resolved "https://codeload.github.com/van001/lccore/tar.gz/053fa0e9baf908003e8bde82c1d52cbc17398cf1"
+  resolved "https://registry.yarnpkg.com/lccore/-/lccore-1.0.0.tgz#6c812c830777e7143819b9ecfe8e4995e11e7e8b"
+  integrity sha512-OxQBJrAeq7CRTPuqqxg1hEMenhjYeyz/ZiZf1CH4I8a3pWl2YbZalgEfN/0fJCY4R0NvTKg06eixRW/M4THh1Q==
 
 leven@^3.1.0:
   version "3.1.0"
