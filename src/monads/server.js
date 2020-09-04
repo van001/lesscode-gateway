@@ -40,7 +40,7 @@ const RegisterSpec = spec => async express => {
 
 
 /**
- * Express monad. Accepts the port and openspec3x in json format
+ * Express monad. Accepts the config and openspec3x in json format.
  * config : {
  *  port: 8080
  * }
