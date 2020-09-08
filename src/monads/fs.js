@@ -1,7 +1,7 @@
 /**
  * All file system related monads.
  */
-const { print, $M } = require('lccore') // lccore
+const { print, $M } = require('lesscode-fp')
 const fs = require('fs').promises
 const yaml = require('yaml')
 const parser = require('@apidevtools/swagger-parser')

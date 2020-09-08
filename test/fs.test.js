@@ -1,4 +1,4 @@
-const { print } = require('lccore')
+const { print } = require('lesscode-fp') 
 const {DirBrowser, SwaggerValidate, FileReadUtf8} = require('../src/monads/fs')
 
 test('FilereadUtf8........', async () => {

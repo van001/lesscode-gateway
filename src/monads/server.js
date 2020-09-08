@@ -4,7 +4,7 @@
  * 2. Register SPecs or Endpoints directly  :   expRegSpec or expRegEndpoint 
  * 3. Start express                         :   expStart
  */
-const { $, $M, lfold, hint, print, memoize } = require('lccore')
+const { $, $M, lfold, hint, print, memoize } = require('lesscode-fp')
 const load = memoize((path) => $(hint(`Loaded ${path}...`), require)(path)) //memoize 
 const { OpenApiValidator } = require('express-openapi-validator')
 const swaggerUi = require('swagger-ui-express')
@@ -53,8 +53,8 @@ const Express = config => async jsons => {
     express.use(bodyParser.json());
 
     jsons.forEach(json => {
-        $M( Hint(`Registering Open API validator...`), OpenAPIValidate({ apiSpec: json, validateRequests: true, validateResponses: true }),
-            Hint(`Registering Open API spec........`), RegisterSpec(json))(express)
+        //Hint(`Registering Open API validator...`), OpenAPIValidate({ apiSpec: json, validateRequests: true, validateResponses: true })
+        $M(Hint(`Registering Open API spec........`), RegisterSpec(json))(express)
     })
 
     $M(Hint('Added defualt Error handler...'), ErrorHandler)(express)

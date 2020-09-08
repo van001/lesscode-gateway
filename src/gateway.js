@@ -7,7 +7,7 @@
  * mGateway(8080).catch(err => print(`[ERROR] : Gateway crashed : ${err}`))
  */
 
-const { $M, print } = require('lccore') // lccore
+const { $M, print } = require('lesscode-fp') 
 const { DirBrowser, SwaggerValidate } = require('./monads/fs')
 const { Express } = require('./monads/server')
 

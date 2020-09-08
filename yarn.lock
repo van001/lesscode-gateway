@@ -2627,9 +2627,10 @@ kleur@^3.0.3:
   resolved "https://registry.yarnpkg.com/kleur/-/kleur-3.0.3.tgz#a79c9ecc86ee1ce3fa6206d1216c501f147fc07e"
   integrity sha512-eTIzlVOSUR+JxdDFepEYcBMtZ9Qqdef+rnzWdRZuMbOywu5tO2w2N7rqjoANZ5k9vywhL6Br1VRjUIgTQx4E8w==
 
-lccore@van001/lccore:
-  version "1.0.3"
-  resolved "https://codeload.github.com/van001/lccore/tar.gz/a7852cca07b328c7186ae1cbae6a3a6ad1054a63"
+lesscode-fp@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/lesscode-fp/-/lesscode-fp-1.0.0.tgz#b4ff216d14730e2aaa1f93412b9bf90ae9bd1901"
+  integrity sha512-bq+bLv1WE7cXfA/7yacaFADnjYdEiBghreZH7ydbFahtAxpsuy85JAnBUObfMfJ+ianhjVrtlGEPlQNBQlEHFw==
 
 leven@^3.1.0:
   version "3.1.0"
