@@ -24,7 +24,7 @@ const RegisterSpec = spec => async express => {
                     try {
                         let start = Date.now()
                         await load((`${process.cwd()}/src/functions/${operationid}`))(req, res, next)
-                        print({method, statusCode : res.statusCode, url : path, latency : Date.now()-start})
+                        print(JSON.stringify({method, status : res.statusCode, url : path, latency : Date.now()-start}))
                     } catch (err) {
                         next(err)
                     }
