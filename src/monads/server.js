@@ -23,12 +23,13 @@ const Logger = req => async res => {
         Error: async (err) => { $M($R({ err }), Print)(JSON.stringify({ uuid: req.UUID, type: 'error', method: req.method, url: req.path, operationid : req.operationid, err: err, ts: Date.now() })) }
     }
 }
+const CORS = req => async res => { res.header('Access-Control-Allow-Origin','*') }
 
 const Config = req => async res => {}
 
 // default filters
 const filters = {
-    req: { Start, UUID, Logger},
+    req: { Start, UUID, Logger, CORS},
     res: { End, Metrics }
 }
 
@@ -60,7 +61,7 @@ const Express = config => async specs => {
                         const LogError = req => res => async err => $M($R({ err }), Print)(JSON.stringify({ uuid: req.UUID, type: 'error', method: req.method, url: req.path, err: err, ts: Date.now() }))
                         return await $M(SendError(req)(res), LogError(req)(res))(err)
                     }
-                    return async (req, res) => {
+                    return async (req, res, next) => {
                         req['operationid'] = operationid
                         await $M(Wait, lmap(ExecFilter(req)(res)))(m2valList(filters.req))
                         await $M(Exec(req)(res))(`${process.cwd()}/src/functions/${operationid}`).catch(HandleError(req)(res))
