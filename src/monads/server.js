@@ -90,7 +90,7 @@ const Express = config => async specs => {
     const RegisterOpenAPIValidator = config => async express => { new OpenApiValidator(config).install(express); return express }
     
     const RegisterMiddlewares = config => express => { 
-        const RegisterMiddleware = express => middleware => { console.log(`registering ${middleware}`); express.use(middleware)}
+        const RegisterMiddleware = express => middleware => {express.use(middleware)}
         $(lmap(RegisterMiddleware(express)), m2valList)(middlewares)
         return express
     }
