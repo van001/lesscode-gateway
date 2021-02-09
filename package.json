@@ -1,6 +1,6 @@
 {
   "name": "lesscode-gateway",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "protocol gateway",
   "main": "./src/gateway.js",
   "scripts": {
@@ -19,11 +19,13 @@
   "dependencies": {
     "@apidevtools/swagger-parser": "^10.0.1",
     "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
     "express": "^4.17.1",
     "express-openapi-validator": "^3.16.10",
-    "lesscode-fp": "^1.0.0",
+    "lesscode-fp": "^1.0.37",
     "save": "^2.4.0",
     "swagger-ui-express": "^4.1.4",
+    "uuid": "^8.3.2",
     "yaml": "^1.10.0",
     "yamljs": "^0.3.0"
   },

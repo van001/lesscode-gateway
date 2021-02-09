@@ -1,3 +1,5 @@
-module.exports =  async function(req, res, next) {
-    res.send('added 123...')
+module.exports =  async function(req, res) {
+    //throw "Tennant id is not a number."
+    
+    res.send(`added...`)
 }

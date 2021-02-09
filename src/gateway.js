@@ -7,9 +7,10 @@
  * mGateway(8080).catch(err => print(`[ERROR] : Gateway crashed : ${err}`))
  */
 
-const { $M, print } = require('lesscode-fp') 
+const { $M } = require('lesscode-fp')
 const { DirBrowser, SwaggerValidate } = require('./monads/fs')
 const { Express } = require('./monads/server')
+
 
 /**
  * Gateway Monad.
@@ -24,8 +25,6 @@ const Gateway = async config => {
         await $M(Express(config.rest), DirBrowser()(SwaggerValidate))('rest')
     }
 }
-
-//Gateway({ rest: { port: 8080 } }).catch(err => print(`[ERROR] : Gateway crashed : ${err}`))
 module.exports = { Gateway }
 
 

@@ -1,7 +1,7 @@
 /**
  * All file system related monads.
  */
-const { print, $M } = require('lesscode-fp')
+const { Print, $M } = require('lesscode-fp')
 const fs = require('fs').promises
 const yaml = require('yaml')
 const parser = require('@apidevtools/swagger-parser')
@@ -24,11 +24,11 @@ const SwaggerValidate = async content => parser.validate(content)
  * @param {*} name 
  */
 const DirBrowser = config => action => async name => {
-    print(`Loading dir ${process.cwd()}/${name}`)
+    Print(`Loading dir ${process.cwd()}/${name}`)
     const dir = await fs.opendir(`${process.cwd()}/${name}`);
     const files = []
     for await (const file of dir) {
-        print(`Loading ${process.cwd()}/${name}/${file.name} `)
+        Print(`Loading ${process.cwd()}/${name}/${file.name} `)
         files.push(await $M(action)(`${process.cwd()}/${name}/${file.name}`))
     }
     return files
