@@ -23,7 +23,7 @@
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "express-openapi-validator": "^3.16.10",
-    "lesscode-fp": "^1.0.37",
+    "lesscode-fp": "^1.0.38",
     "save": "^2.4.0",
     "swagger-ui-express": "^4.1.4",
     "uuid": "^8.3.2",
