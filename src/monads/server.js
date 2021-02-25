@@ -12,31 +12,25 @@ const { v1: uuidv1 } = require('uuid')
 const cors = require('cors')
 const bodyParser = require('body-parser')
 
-
-// Filters
-const Start = req => async res => { req['Start'] = Date.now() }
-const End = req => async res => { res['End'] = Date.now() }
-const UUID = req => async res => { req['UUID'] = uuidv1(); res.header('x-uuid', req.UUID) }
-const Metrics = req => async res => { Print(JSON.stringify({ uuid: req.UUID, type: 'metrics', method: req.method, status: res.statusCode, url: req.path, latency: res.End - req.Start, ts: Date.now() })) }
-const Logger = req => async res => {
-    req['Logger'] = {
-        Info: async (msg) => { $M($R({ msg }), Print)(JSON.stringify({ uuid: req.UUID, type: 'info', method: req.method, url: req.path, operationid : req.operationid, msg: msg, ts: Date.now() })) },
-        Warning: async (msg) => { $M($R({ msg }), Print)(JSON.stringify({ uuid: req.UUID, type: 'warning', method: req.method, url: req.path, operationid : req.operationid, msg: msg, ts: Date.now() })) },
-        Error: async (err) => { $M($R({ err }), Print)(JSON.stringify({ uuid: req.UUID, type: 'error', method: req.method, url: req.path, operationid : req.operationid, err: err, ts: Date.now() })) }
-    }
-}
-const CORS = req => async res => { res.header('Access-Control-Allow-Origin','*') }
-
-const Config = req => async res => {}
-
-// default filters
-const filters = {
-    req: { Start, UUID, Logger, CORS},
-    res: { End, Metrics }
-}
-
 //defualt middlewares
 const middlewares = {
+    UUID : (req, res, next) => { req['UUID'] = uuidv1(); res.header('x-uuid', req.UUID); next()},
+    Start : (req, res, next) => { req['Start'] = Date.now(); next()} ,
+    End : (req, res, next) => {  res.on("finish", function() { res['End'] = Date.now() }); next()} ,
+    Metrics : (req, res, next) => {
+        res.on("finish", 
+        function(){ Print(JSON.stringify({ uuid: req.UUID, type: 'metrics', method: req.method, status: res.statusCode, url: req.path, latency: res.End - req.Start, ts: Date.now() })) }
+        )
+        next()
+    },
+    Logger : (req, res, next) => {
+        req['Logger'] = {
+            Info: async (msg) => { $M($R({ msg }), Print)(JSON.stringify({ uuid: req.UUID, type: 'info', method: req.method, url: req.path, operationid : req.operationid, msg: msg, ts: Date.now() })) },
+            Warning: async (msg) => { $M($R({ msg }), Print)(JSON.stringify({ uuid: req.UUID, type: 'warning', method: req.method, url: req.path, operationid : req.operationid, msg: msg, ts: Date.now() })) },
+            Error: async (err) => { $M($R({ err }), Print)(JSON.stringify({ uuid: req.UUID, type: 'error', method: req.method, url: req.path, operationid : req.operationid, err: err, ts: Date.now() })) }
+        }
+        next()
+    },
     CORS : cors(), 
     BodyParserJSON : bodyParser.json(),
     BodyParserURLEncoded : bodyParser.urlencoded({ extended: false })
@@ -67,9 +61,8 @@ const Express = config => async specs => {
                     }
                     return async (req, res, next) => {
                         req['operationid'] = operationid
-                        await $M(Wait, lmap(ExecFilter(req)(res)))(m2valList(filters.req))
                         await $M(Exec(req)(res))(`${process.cwd()}/src/functions/${operationid}`).catch(HandleError(req)(res))
-                        await $M(Wait, lmap(ExecFilter(req)(res)))(m2valList(filters.res))
+               
                     }
                 }
                 const expRegPath2Operation = func => { express[method](path.replace('{', ':').replace('}', ''), func); return express }
@@ -91,25 +84,23 @@ const Express = config => async specs => {
         return express
     }
 
-    const RegisterErrorHandler = async express => express.use((err, req, res, next) => {res.status(err.status || 500).json({ err }); })
+    const RegisterErrorHandler = async express => express.use((err, req, res, next) => {res.status(err.status || 500).json({ err })})
     const RegisterOpenAPIValidator = config => async express => { new OpenApiValidator(config).install(express); return express }
     
     const RegisterMiddlewares = config => async express => { 
-        
         const RegisterMiddleware = express => middleware =>  express.use(middleware)
         $(lmap(RegisterMiddleware(express)), m2valList)(middlewares)
+        $(lmap(RegisterMiddleware(express)), m2valList)( config.middlewares  || {})
         return express
     }
 
     const StartListener = config => async express => express.listen(config.port || 8080, () => Print(`Express listening at : ${config.port || 8080}`))
-    const app = require('express')()
-    app.use(bodyParser.json())
     return $M(
         Hint('Started HTTP listener................'), StartListener(config),
-        Hint('Registering middleware...............'), RegisterMiddlewares(config),
         Hint('Attached shutdown handler............'), RegisterShutdownHandler(['SIGINT', 'SIGTERM', 'SIGHUP']),
         Hint('Added defualt Error handler..........'), RegisterErrorHandler,
-        Hint('Registering Specs....................'), RegisterSpecs(config)(specs))(app)
+        Hint('Registering Specs....................'), RegisterSpecs(config)(specs),
+        Hint('Registering middleware...............'), RegisterMiddlewares(config))(require('express')())
 }
 
 //Export
