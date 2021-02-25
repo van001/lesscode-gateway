@@ -89,9 +89,9 @@ const Express = config => async specs => {
     
     const RegisterMiddlewares = config => async express => { 
         const RegisterMiddleware = express => middleware =>  express.use(middleware)
-        $(lmap(RegisterMiddleware(express)), m2valList)(middlewares)
-        $(lmap(RegisterMiddleware(express)), m2valList)( config.middlewares  || {})
-        return express
+        const RegisterDefaultMiddlewares = async express => { $(lmap(RegisterMiddleware(express)), m2valList)(middlewares) ; return express }// register default middlewares
+        const RegisterCustomMiddlewares = async express => { $(lmap(RegisterMiddleware(express)), m2valList)( config.middlewares  || {}); return express }// add new / overrite 
+        return $M(RegisterCustomMiddlewares, RegisterDefaultMiddlewares)(express)
     }
 
     const StartListener = config => async express => express.listen(config.port || 8080, () => Print(`Express listening at : ${config.port || 8080}`))
