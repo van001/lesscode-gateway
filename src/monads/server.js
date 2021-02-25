@@ -9,7 +9,9 @@ const $R = ret => async res => ret
 const load = Memoize((path) => $(require)(path)) //memoize 
 const { OpenApiValidator } = require('express-openapi-validator')
 const { v1: uuidv1 } = require('uuid')
-const cors = require('cors');
+const cors = require('cors')
+const bodyParser = require('body-parser')
+
 
 // Filters
 const Start = req => async res => { req['Start'] = Date.now() }
@@ -35,7 +37,9 @@ const filters = {
 
 //defualt middlewares
 const middlewares = {
-    CORS : cors()
+    CORS : cors(), 
+    BodyParserJSON : bodyParser.json(),
+    BodyParserURLEncoded : bodyParser.urlencoded({ extended: false })
 }
 
 /**
@@ -90,19 +94,22 @@ const Express = config => async specs => {
     const RegisterErrorHandler = async express => express.use((err, req, res, next) => {res.status(err.status || 500).json({ err }); })
     const RegisterOpenAPIValidator = config => async express => { new OpenApiValidator(config).install(express); return express }
     
-    const RegisterMiddlewares = config => express => { 
-        const RegisterMiddleware = express => middleware => {express.use(middleware)}
+    const RegisterMiddlewares = config => async express => { 
+        
+        const RegisterMiddleware = express => middleware =>  express.use(middleware)
         $(lmap(RegisterMiddleware(express)), m2valList)(middlewares)
         return express
     }
 
     const StartListener = config => async express => express.listen(config.port || 8080, () => Print(`Express listening at : ${config.port || 8080}`))
+    const app = require('express')()
+    app.use(bodyParser.json())
     return $M(
         Hint('Started HTTP listener................'), StartListener(config),
         Hint('Registering middleware...............'), RegisterMiddlewares(config),
         Hint('Attached shutdown handler............'), RegisterShutdownHandler(['SIGINT', 'SIGTERM', 'SIGHUP']),
         Hint('Added defualt Error handler..........'), RegisterErrorHandler,
-        Hint('Registering Specs....................'), RegisterSpecs(config)(specs))(require('express')())
+        Hint('Registering Specs....................'), RegisterSpecs(config)(specs))(app)
 }
 
 //Export

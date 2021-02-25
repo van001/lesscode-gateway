@@ -10,6 +10,7 @@
 const { $M } = require('lesscode-fp')
 const { DirBrowser, SwaggerValidate } = require('./monads/fs')
 const { Express } = require('./monads/server')
+const {Config} = require('./monads/config')
 
 
 /**
@@ -21,11 +22,12 @@ const { Express } = require('./monads/server')
  * }
  */
 const Gateway = async config => {
+  
     if (config.rest) {
         await $M(Express(config.rest), DirBrowser()(SwaggerValidate))('rest')
     }
 }
-module.exports = { Gateway }
+module.exports = { Gateway, Config }
 
 
 

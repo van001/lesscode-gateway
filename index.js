@@ -1,5 +1,5 @@
 const { Print } = require('lesscode-fp')
-const { Gateway } = require('./gateway')
+const { Gateway } = require('./src/gateway')
 const config = {
     rest: {
         port: 8090
