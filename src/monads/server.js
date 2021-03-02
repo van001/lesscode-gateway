@@ -11,29 +11,63 @@ const { OpenApiValidator } = require('express-openapi-validator')
 const { v1: uuidv1 } = require('uuid')
 const cors = require('cors')
 const bodyParser = require('body-parser')
+const ua = require('useragent')
 
 //defualt middlewares
 const middlewares = {
-    UUID : (req, res, next) => { req['UUID'] = uuidv1(); res.header('x-uuid', req.UUID); next()},
-    Start : (req, res, next) => { req['Start'] = Date.now(); next()} ,
-    End : (req, res, next) => {  res.on("finish", function() { res['End'] = Date.now() }); next()} ,
-    Metrics : (req, res, next) => {
-        res.on("finish", 
-        function(){ Print(JSON.stringify({ uuid: req.UUID, type: 'metrics', method: req.method, status: res.statusCode, url: req.path, latency: res.End - req.Start, ts: Date.now() })) }
+    BodyParserJSON: bodyParser.json(),
+    BodyParserURLEncoded: bodyParser.urlencoded({ extended: false }),
+    UUID: (req, res, next) => { req.uuid = req.headers.uuid || uuidv1(); res.header('uuid', req.uuid); next() },
+    Start: (req, res, next) => { req['Start'] = Date.now(); next() },
+    End: (req, res, next) => { res.on("finish", function () { res['End'] = Date.now() }); next() },
+    Metrics: (req, res, next) => {
+        res.on("finish",
+            function () {
+                Print(JSON.stringify(
+                    {
+                        uuid: req.uuid,
+                        env: process.env.ENV,
+                        region: process.env.REGION,
+                        type: 'metrics',
+                        method: req.method,
+                        status: res.statusCode,
+                        url: req.path,
+                        length: res.get('content-length'),
+                        latency: res.End - req.Start,
+                        ts: Date.now()
+                    }))
+            }
         )
         next()
     },
-    Logger : (req, res, next) => {
+    Request: (req, res, next) => {
+       
+        Print(JSON.stringify(
+            {
+                uuid: req.uuid,
+                env: process.env.ENV,
+                region: process.env.REGION,
+                user: { id: req.UserId, type: req.UserType },
+                type: 'request',
+                method: req.method,
+                useragent: ua.parse(req.headers['user-agent']),
+                url: req.path,
+                query: req.query,
+                body: req.body,
+                length: req.get('content-length'),
+                ts: Date.now()
+            }))
+        next()
+    },
+    Logger: (req, res, next) => {
         req['Logger'] = {
-            Info: async (msg) => { $M($R({ msg }), Print)(JSON.stringify({ uuid: req.UUID, type: 'info', method: req.method, url: req.path, operationid : req.operationid, msg: msg, ts: Date.now() })) },
-            Warning: async (msg) => { $M($R({ msg }), Print)(JSON.stringify({ uuid: req.UUID, type: 'warning', method: req.method, url: req.path, operationid : req.operationid, msg: msg, ts: Date.now() })) },
-            Error: async (err) => { $M($R({ err }), Print)(JSON.stringify({ uuid: req.UUID, type: 'error', method: req.method, url: req.path, operationid : req.operationid, err: err, ts: Date.now() })) }
+            Info: async (msg) => { $M($R({ msg }), Print)(JSON.stringify({ uuid: req.uuid, type: 'info', method: req.method, url: req.path, operationid: req.operationid, msg: msg, ts: Date.now() })) },
+            Warning: async (msg) => { $M($R({ msg }), Print)(JSON.stringify({ uuid: req.uuid, type: 'warning', method: req.method, url: req.path, operationid: req.operationid, msg: msg, ts: Date.now() })) },
+            Error: async (err) => { $M($R({ err }), Print)(JSON.stringify({ uuid: req.uuid, type: 'error', method: req.method, url: req.path, operationid: req.operationid, err: err, ts: Date.now() })) }
         }
         next()
     },
-    CORS : cors(), 
-    BodyParserJSON : bodyParser.json(),
-    BodyParserURLEncoded : bodyParser.urlencoded({ extended: false })
+    CORS: cors()
 }
 
 /**
@@ -62,7 +96,7 @@ const Express = config => async specs => {
                     return async (req, res, next) => {
                         req['operationid'] = operationid
                         await $M(Exec(req)(res))(`${process.cwd()}/src/functions/${operationid}`).catch(HandleError(req)(res))
-               
+
                     }
                 }
                 const expRegPath2Operation = func => { express[method](path.replace('{', ':').replace('}', ''), func); return express }
@@ -84,13 +118,13 @@ const Express = config => async specs => {
         return express
     }
 
-    const RegisterErrorHandler = async express => express.use((err, req, res, next) => {res.status(err.status || 500).json({ err })})
+    const RegisterErrorHandler = async express => express.use((err, req, res, next) => { res.status(err.status || 500).json({ err }) })
     const RegisterOpenAPIValidator = config => async express => { new OpenApiValidator(config).install(express); return express }
-    
-    const RegisterMiddlewares = config => async express => { 
-        const RegisterMiddleware = express => middleware =>  express.use(middleware)
-        const RegisterDefaultMiddlewares = async express => { $(lmap(RegisterMiddleware(express)), m2valList)(middlewares) ; return express }// register default middlewares
-        const RegisterCustomMiddlewares = async express => { $(lmap(RegisterMiddleware(express)), m2valList)( config.middlewares  || {}); return express }// add new / overrite 
+
+    const RegisterMiddlewares = config => async express => {
+        const RegisterMiddleware = express => middleware => express.use(middleware)
+        const RegisterDefaultMiddlewares = async express => { $(lmap(RegisterMiddleware(express)), m2valList)(middlewares); return express }// register default middlewares
+        const RegisterCustomMiddlewares = async express => { $(lmap(RegisterMiddleware(express)), m2valList)(config.middlewares || {}); return express }// add new / overrite 
         return $M(RegisterCustomMiddlewares, RegisterDefaultMiddlewares)(express)
     }
 
