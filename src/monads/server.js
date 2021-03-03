@@ -47,7 +47,7 @@ const middlewares = {
                 uuid: req.uuid,
                 env: process.env.ENV,
                 region: process.env.REGION,
-                user: { id: req.UserId, type: req.UserType },
+                user: req.user,
                 type: 'request',
                 method: req.method,
                 useragent: ua.parse(req.headers['user-agent']),
