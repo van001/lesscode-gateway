@@ -63,9 +63,9 @@ const middlewares = {
     },
     Logger: (req, res, next) => {
         req['Logger'] = {
-            Info: async (msg) => { $M($R({ msg }), Print)(JSON.stringify({ uuid: req.uuid, type: 'info', method: req.method, url: req.path, operationid: req.operationid, msg: msg, ts: Date.now() })) },
-            Warning: async (msg) => { $M($R({ msg }), Print)(JSON.stringify({ uuid: req.uuid, type: 'warning', method: req.method, url: req.path, operationid: req.operationid, msg: msg, ts: Date.now() })) },
-            Error: async (err) => { $M($R({ err }), Print)(JSON.stringify({ uuid: req.uuid, type: 'error', method: req.method, url: req.path, operationid: req.operationid, err: err, ts: Date.now() })) }
+            Info: async (msg) => { $M($R({ msg }), Print)(JSON.stringify({ uuid: req.uuid,   name : process.env.NAME, type: 'info', method: req.method, url: req.path, operationid: req.operationid, msg: msg, ts: Date.now() })) },
+            Warning: async (msg) => { $M($R({ msg }), Print)(JSON.stringify({ uuid: req.uuid, name : process.env.NAME, type: 'warning', method: req.method, url: req.path, operationid: req.operationid, msg: msg, ts: Date.now() })) },
+            Error: async (err) => { $M($R({ err }), Print)(JSON.stringify({ uuid: req.uuid,   name : process.env.NAME, type: 'error', method: req.method, url: req.path, operationid: req.operationid, err: err, ts: Date.now() })) }
         }
         next()
     },
