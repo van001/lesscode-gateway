@@ -42,8 +42,7 @@ const Express = config => async specs => {
                     }
                     return async (req, res, next) => {
                         req['operationid'] = operationid
-                        LatencyinStart(req, res)
-                        await $M(LatencyinEnd(req, res), Exec(req)(res))(`${process.cwd()}/src/functions/${operationid}`).catch(HandleError(req)(res))
+                         await $M(LatencyinEnd(req, res), Exec(req)(res))(`${process.cwd()}/src/functions/${operationid}`).catch(HandleError(req)(res))
                         
 
 
