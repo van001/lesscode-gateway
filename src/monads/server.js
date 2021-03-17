@@ -40,7 +40,7 @@ const Express = config => async specs => {
                     }
                     return async (req, res, next) => {
                         req['operationid'] = operationid
-                       
+                        req['Config'] = config
                         await $M(Exec(req)(res))(`${process.cwd()}/src/functions/${operationid}`).catch(HandleError(req)(res))
                         
 
@@ -76,7 +76,7 @@ const Express = config => async specs => {
         return $M(RegisterCustomMiddlewares, RegisterDefaultMiddlewares)(express)
     }
 
-    const StartListener = config => async express => express.listen(config.port || 8080, () => Print(`Express listening at : ${config.port || 8080}`))
+    const StartListener = config => async express => express.listen(config.rest.port || 8080, () => Print(`Express listening at : ${config.rest.port || 8080}`))
     return $M(
         Hint('Started HTTP listener................'), StartListener(config),
         Hint('Attached shutdown handler............'), RegisterShutdownHandler(['SIGINT', 'SIGTERM', 'SIGHUP']),

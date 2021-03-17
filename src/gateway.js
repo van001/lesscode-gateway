@@ -24,7 +24,7 @@ const {Config} = require('./monads/config')
 const Gateway = async config => {
   
     if (config.rest) {
-        await $M(Express(config.rest), DirBrowser()(SwaggerValidate))('rest')
+        await $M(Express(config), DirBrowser()(SwaggerValidate))('rest')
     }
 }
 module.exports = { Gateway, Config }
