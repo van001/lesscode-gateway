@@ -11,8 +11,6 @@ const { OpenApiValidator } = require('express-openapi-validator')
 const { BodyParserJSON, BodyParserURLEncoded, UUID, Start, End, Metrics, Request, Logger, CORS } = require('./middlewares')
 const LatencyStart = Start('latency')
 const LatencyEnd = End('latency')
-const LatencyinStart = Start('latencyin')
-const LatencyinEnd = End('latencyin')
 
 //defualt middlewares
 const middlewares = { BodyParserJSON, BodyParserURLEncoded, UUID, LatencyStart, LatencyEnd, Metrics, Request, Logger, CORS }
@@ -42,7 +40,8 @@ const Express = config => async specs => {
                     }
                     return async (req, res, next) => {
                         req['operationid'] = operationid
-                         await $M(LatencyinEnd(req, res), Exec(req)(res))(`${process.cwd()}/src/functions/${operationid}`).catch(HandleError(req)(res))
+                       
+                        await $M(Exec(req)(res))(`${process.cwd()}/src/functions/${operationid}`).catch(HandleError(req)(res))
                         
 
 
