@@ -13,7 +13,7 @@ module.exports = {
     BodyParserURLEncoded: bodyParser.urlencoded({ extended: false }),
     UUID: (req, res, next) => { req.uuid = req.headers.uuid || uuidv1(); res.header('uuid', req.uuid); next() },
     Start: label => (req, res, next) => { if (!req.timers) req.timers = {}; { const start = Date.now(); req.timers[label] = { start, end: start } }; if (next) { next() } }, // Timer start
-    End: label => (req, res, next) => { res.on("finish", function () { if (req.timers) { req.timers[label].end = Date.now(); console.log(req.timers) } }); if (next) { next() } }, // Timer End
+    End: label => (req, res, next) => { res.on("finish", function () { if (req.timers) { req.timers[label].end = Date.now() } }); if (next) { next() } }, // Timer End
     Metrics: (req, res, next) => {
         res.on("finish",
             () => {
