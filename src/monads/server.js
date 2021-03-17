@@ -8,11 +8,14 @@ const { $, $M, Wait, lmap, m2valList, lfold, Hint, Print, Memoize } = require('l
 const $R = ret => async res => ret
 const load = Memoize((path) => $(require)(path)) //memoize 
 const { OpenApiValidator } = require('express-openapi-validator')
-
-const { BodyParserJSON, BodyParserURLEncoded,UUID ,Start, End, Metrics, Request, Logger, CORS} = require('./middlewares')
+const { BodyParserJSON, BodyParserURLEncoded, UUID, Start, End, Metrics, Request, Logger, CORS } = require('./middlewares')
+const LatencyStart = Start('latency')
+const LatencyEnd = End('latency')
+const LatencyinStart = Start('latencyin')
+const LatencyinEnd = End('latencyin')
 
 //defualt middlewares
-const middlewares = { BodyParserJSON, BodyParserURLEncoded,UUID ,Start, End, Metrics, Request, Logger, CORS}
+const middlewares = { BodyParserJSON, BodyParserURLEncoded, UUID, LatencyStart, LatencyEnd, Metrics, Request, Logger, CORS }
 
 /**
  * Express monad. Accepts the config and openspec3x in json format.
@@ -33,13 +36,16 @@ const Express = config => async specs => {
 
                 const expLoadOperation = () => {
                     const HandleError = req => res => async err => {
-                        const SendError = req => res => err => { res.status(500).header('content-type', 'application/json').send(err) }
-                        const LogError = req => res => async err => $M($R({ err }), Print)(JSON.stringify({ uuid: req.UUID, type: 'error', method: req.method, url: req.path, err: err, ts: Date.now() }))
-                        return await $M(SendError(req)(res), LogError(req)(res))(err)
+                        const SendError =res => async err => { res.status((err.status) ? err.status : 500).header('content-type', 'application/json').send(err) }
+                        const LogError = req => async err => req.Logger.Error(err)
+                        return await $M(SendError(res), LogError(req))(err)
                     }
                     return async (req, res, next) => {
                         req['operationid'] = operationid
-                        await $M(Exec(req)(res))(`${process.cwd()}/src/functions/${operationid}`).catch(HandleError(req)(res))
+                        LatencyinStart(req, res)
+                        await $M(LatencyinEnd(req, res), Exec(req)(res))(`${process.cwd()}/src/functions/${operationid}`).catch(HandleError(req)(res))
+                        
+
 
                     }
                 }
@@ -62,7 +68,7 @@ const Express = config => async specs => {
         return express
     }
 
-    const RegisterErrorHandler = async express => express.use((err, req, res, next) => { res.status(err.status || 500).json({ err }) })
+    const RegisterErrorHandler = async express => express.use((err, req, res, next) => { res.status(err.status || 500).json({ status : err.status || 500, title : err.title, msg : err.msg}) })
     const RegisterOpenAPIValidator = config => async express => { new OpenApiValidator(config).install(express); return express }
 
     const RegisterMiddlewares = config => async express => {
