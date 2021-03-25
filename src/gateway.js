@@ -7,10 +7,10 @@
  * mGateway(8080).catch(err => print(`[ERROR] : Gateway crashed : ${err}`))
  */
 
-const { $M } = require('lesscode-fp')
+const { M, $M, Print, $, m2keyList, lmap } = require('lesscode-fp')
 const { DirBrowser, SwaggerValidate } = require('./monads/fs')
 const { Express } = require('./monads/server')
-const {Config} = require('./monads/config')
+const { Secret } = require('./monads/secret')
 
 
 /**
@@ -21,13 +21,20 @@ const {Config} = require('./monads/config')
  *  mqm : {}
  * }
  */
-const Gateway = async config => {
-  
-    if (config.rest) {
-        await $M(Express(config), DirBrowser()(SwaggerValidate))('rest')
+const Gateway = async env => {
+    const SetEnv = env => async name => process.env[name] = env[name]
+    const SetEnvs = async env => $(lmap(SetEnv(env)), m2keyList)(env)
+    const LoadConfig = () => require(`${process.cwd()}/config.js`)
+
+    const StartServer = async config => {
+        if (config.rest) {
+             await $M(Express(config), DirBrowser()(SwaggerValidate))('rest')
+        }
     }
+    return $M(StartServer, LoadConfig, SetEnvs)(env)
 }
-module.exports = { Gateway, Config }
+
+module.exports = { Gateway, Secret }
 
 
 

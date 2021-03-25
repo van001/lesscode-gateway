@@ -5,6 +5,6 @@ module.exports ={
         port: 8090
     },
     db : {
-
+        DB_PASSWORD : `${process.env.DB_PASSWORD}`
     }
 }
