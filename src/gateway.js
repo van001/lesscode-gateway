@@ -12,8 +12,6 @@ const { DirBrowser, SwaggerValidate } = require('./monads/fs')
 const { Express } = require('./monads/server')
 const { Secret } = require('./monads/secret')
 
-
-const dotenv = require('dotenv').config()
 /**
  * Gateway Monad.
  * config : {
