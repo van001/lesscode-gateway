@@ -12,6 +12,8 @@ const { DirBrowser, SwaggerValidate } = require('./monads/fs')
 const { Express } = require('./monads/server')
 const { Secret } = require('./monads/secret')
 
+
+const { GetSecrets } = require('./monads/secret')
 /**
  * Gateway Monad.
  * config : {
@@ -30,7 +32,7 @@ const Gateway = async env => {
     return $M(StartServer, LoadConfig, SetEnvs)(env)
 }
 
-module.exports = { Gateway, Secret }
+module.exports = { Gateway, GetSecrets }
 
 
 
