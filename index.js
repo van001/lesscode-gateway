@@ -1,3 +1,4 @@
+const dotenv = require('dotenv').config()
 const { $M, Print, mset } = require('lesscode-fp')
 const { Gateway } = require('./src/gateway')
 const { GetSecrets } = require('./src/monads/secret')
