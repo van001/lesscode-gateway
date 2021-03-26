@@ -4,7 +4,5 @@ module.exports ={
     rest: {
         port: 8090
     },
-    db : {
-        DB_PASSWORD : `${process.env.DB_PASSWORD}`
-    }
+    ZENDESK_TOKEN : `${process.env.ZENDESK_TOKEN}`
 }

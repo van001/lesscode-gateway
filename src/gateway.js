@@ -22,15 +22,12 @@ const { Secret } = require('./monads/secret')
  * }
  */
 const Gateway = async env => {
+
     const SetEnv = env => async name => process.env[name] = env[name]
     const SetEnvs = async env => $(lmap(SetEnv(env)), m2keyList)(env)
-    const LoadConfig = () => require(`${process.cwd()}/config.js`)
+    const LoadConfig = () => require(`${process.cwd()}/config`)
+    const StartServer = async config => $M(Express(config), DirBrowser()(SwaggerValidate))('rest')
 
-    const StartServer = async config => {
-        if (config.rest) {
-             await $M(Express(config), DirBrowser()(SwaggerValidate))('rest')
-        }
-    }
     return $M(StartServer, LoadConfig, SetEnvs)(env)
 }
 
