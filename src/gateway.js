@@ -6,7 +6,7 @@
  * const {mGateway} require('lcgateway')
  * mGateway(8080).catch(err => print(`[ERROR] : Gateway crashed : ${err}`))
  */
-
+const dotenv = require('dotenv').config()
 const { $M, $, m2keyList, lmap } = require('lesscode-fp')
 const { DirBrowser } = require('./monads/fs')
 const { SwaggerValidate } = require('./monads/validators')
@@ -31,8 +31,6 @@ const Gateway = async env => {
 }
 
 module.exports = { Gateway, GetSecrets }
-
-
 
 
 

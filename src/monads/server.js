@@ -4,6 +4,7 @@
  * 2. Register SPecs or Endpoints directly  :   expRegSpec or expRegEndpoint 
  * 3. Start express                         :   expStart
  */
+
 const { $, $M, Wait, lmap, m2valList, lfold, Hint, Print, Memoize } = require('lesscode-fp')
 const $R = ret => async res => ret
 const load = Memoize((path) => $(require)(path)) //memoize 

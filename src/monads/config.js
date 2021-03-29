@@ -7,6 +7,3 @@ const GetLocalConfig = async msg => $M(FileReadUtf8)(Key)
 const Config = async () => $M( await $M(ToMap,GetObject)({ Bucket, Key}).catch($M(GetLocalConfig,Print)))
 
 module.exports = { Config }
-
-
-//Config().then(Print)

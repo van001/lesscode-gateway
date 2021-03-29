@@ -57,7 +57,7 @@ module.exports = {
     },
     Security: types => (req, res, next) => { 
         const list = (types)? types : []
-        console.log(list)
+
         next()},
     Logger: (req, res, next) => {
         req['Logger'] = {
