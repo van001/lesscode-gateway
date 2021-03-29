@@ -3,8 +3,6 @@
  */
 const { Print, $M } = require('lesscode-fp')
 const fs = require('fs').promises
-const yaml = require('yaml')
-const parser = require('@apidevtools/swagger-parser')
 
 /**
  * File Reader
@@ -12,10 +10,7 @@ const parser = require('@apidevtools/swagger-parser')
 const FileRead = encoding => async name => await fs.readFile(name, encoding)
 const FileReadUtf8 = FileRead('utf-8')
 
-/**
- * Validates swagger and returns json. 
- */
-const SwaggerValidate = async content => parser.validate(content)
+
 
 /**
  * Call this method to browse through all the files within a specified directory.
@@ -37,4 +32,4 @@ const DirBrowser = config => action => async name => {
 //$M(DirBrowser()($M(SwaggerValidate)))('rest').then(print).catch(err => print(`Failed to load express ${err}`))
 
 // Export
-module.exports = { DirBrowser, FileRead, FileReadUtf8, SwaggerValidate }
+module.exports = { DirBrowser, FileRead, FileReadUtf8 }

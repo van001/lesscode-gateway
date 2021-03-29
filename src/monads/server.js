@@ -8,7 +8,7 @@ const { $, $M, Wait, lmap, m2valList, lfold, Hint, Print, Memoize } = require('l
 const $R = ret => async res => ret
 const load = Memoize((path) => $(require)(path)) //memoize 
 const { OpenApiValidator } = require('express-openapi-validator')
-const { BodyParserJSON, BodyParserURLEncoded, UUID, Start, End, Metrics, Request, Logger, CORS } = require('./middlewares')
+const { BodyParserJSON, BodyParserURLEncoded, UUID, Start, End, Metrics, Request, Security, Logger, CORS } = require('./middlewares')
 const LatencyStart = Start('latency')
 const LatencyEnd = End('latency')
 
@@ -23,18 +23,19 @@ const middlewares = { BodyParserJSON, BodyParserURLEncoded, UUID, LatencyStart, 
  */
 const Express = config => async specs => {
     const RegisterSpecs = config => specs => async express => {
+
         // Load Specs, Register endpoints
         const RegisterSpec = config => express => async spec => {
+
             // Endpoint execution
             const expRegEndpoint = spec => path => method => express => {
                 const operationid = spec.paths[path][method].operationId
-                const basepath = spec.basePath
-                const ExecFilter = req => res => async func => func(req)(res)
+
                 const Exec = req => res => async func => load((func))(req, res)
 
                 const expLoadOperation = () => {
                     const HandleError = req => res => async err => {
-                        const SendError =res => async err => { res.status((err.status) ? err.status : 500).header('content-type', 'application/json').send(err) }
+                        const SendError = res => async err => { res.status((err.status) ? err.status : 500).header('content-type', 'application/json').send(err) }
                         const LogError = req => async err => req.Logger.Error(err)
                         return await $M(SendError(res), LogError(req))(err)
                     }
@@ -42,13 +43,10 @@ const Express = config => async specs => {
                         req['operationid'] = operationid
                         req['Config'] = config
                         await $M(Exec(req)(res))(`${process.cwd()}/src/functions/${operationid}`).catch(HandleError(req)(res))
-                        
-
-
                     }
                 }
-                const expRegPath2Operation = func => { express[method](path.replace('{', ':').replace('}', ''), func); return express }
-                return $(Hint(`${path}[${method}] => ${operationid}...`), expRegPath2Operation, expLoadOperation)()
+                const expRegPath2Operation = func => { express[method](path.replace('{', ':').replace('}', ''), Security(spec.paths[path][method].security), func); return express }
+                return $(Hint(`[${method}][${(operationid) ? 'secured' : 'unsecured'}]${path} => ${operationid}`), expRegPath2Operation, expLoadOperation)()
             }
             const expRegisterPath = cat => val => { expRegEndpoint(cat.spec)(cat.path)(val)(cat.express); return cat }
             const expRegisterPaths = cat => val => { lfold({ express: cat.express, spec: cat.spec, paths: cat.paths, path: val })(expRegisterPath)(Object.keys(cat.paths[val])); return cat }
@@ -59,6 +57,10 @@ const Express = config => async specs => {
         return $M($R(express), Wait, lmap(RegisterSpec(config)(express)))(specs)
     }
 
+    const RegisterUncaughtExceptionHandler = async express => {
+        process.on('uncaughtException', function (err) { console.log({ type: 'error', name: process.env.NAME, title: 'Crash', trace: err }) })
+        return express
+    }
     const RegisterShutdownHandler = signals => async express => {
         const onShutdown = express => { Print("Shutting down..."); process.exit(0) }
         const handler = func => val => process.on(val, func)
@@ -66,7 +68,7 @@ const Express = config => async specs => {
         return express
     }
 
-    const RegisterErrorHandler = async express => express.use((err, req, res, next) => { res.status(err.status || 500).json({ status : err.status || 500, title : err.title, msg : err.msg}) })
+    const RegisterErrorHandler = async express => express.use((err, req, res, next) => { res.status(err.status || 500).json({ status: err.status || 500, title: err.title, msg: err.msg }) })
     const RegisterOpenAPIValidator = config => async express => { new OpenApiValidator(config).install(express); return express }
 
     const RegisterMiddlewares = config => async express => {
@@ -79,6 +81,7 @@ const Express = config => async specs => {
     const StartListener = config => async express => express.listen(config.rest.port || 8080, () => Print(`Express listening at : ${config.rest.port || 8080}`))
     return $M(
         Hint('Started HTTP listener................'), StartListener(config),
+        Hint('Attached uncaught exception handler..'), RegisterUncaughtExceptionHandler,
         Hint('Attached shutdown handler............'), RegisterShutdownHandler(['SIGINT', 'SIGTERM', 'SIGHUP']),
         Hint('Added defualt Error handler..........'), RegisterErrorHandler,
         Hint('Registering Specs....................'), RegisterSpecs(config)(specs),

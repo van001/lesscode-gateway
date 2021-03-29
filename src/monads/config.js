@@ -1,5 +1,5 @@
-const { Print, Hint, Wait, $M } = require('lesscode-fp')
-const {GetObject, ToMap } = require('./s3')
+const { Print, $M } = require('lesscode-fp')
+const {GetObject, ToMap } = require('./aws')
 const {FileReadUtf8 } = require('./fs')
 const Bucket = `${process.env.DOMAIN}.config`
 const Key = `${process.env.NAME}.${process.env.ECS_CLUSTER_NAME}.config.json`

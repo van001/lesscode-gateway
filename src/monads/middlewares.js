@@ -37,7 +37,6 @@ module.exports = {
         next()
     },
     Request: (req, res, next) => {
-
         Print(JSON.stringify(
             {
                 type: 'request',
@@ -56,11 +55,15 @@ module.exports = {
             }))
         next()
     },
+    Security: types => (req, res, next) => { 
+        const list = (types)? types : []
+        console.log(list)
+        next()},
     Logger: (req, res, next) => {
         req['Logger'] = {
-            Info: async (msg) => $M(JSON.parse, Print)(JSON.stringify({ type: 'info', uuid: req.uuid, name: process.env.NAME, method: req.method, url: req.path, operationid: req.operationid, msg: msg, ts: Date.now() })) ,
-            Warning: async (msg) => $M(JSON.parse, Print)(JSON.stringify({ type: 'warning', uuid: req.uuid, name: process.env.NAME, method: req.method, url: req.path, operationid: req.operationid, msg: msg, ts: Date.now() })) ,
-            Error: async (err) => $M(JSON.parse, Print)(JSON.stringify({ type: 'error', uuid: req.uuid, name: process.env.NAME, method: req.method, url: req.path, operationid: req.operationid, status : err.status, title : err.title, category : err.category, msg : err.msg, trace : err.trace, ts: Date.now() })) 
+            Info: async (msg) => $M(JSON.parse, Print)(JSON.stringify({ type: 'info', uuid: req.uuid, name: process.env.NAME, method: req.method, url: req.path, operationid: req.app.settings.operationid, msg: msg, ts: Date.now() })) ,
+            Warning: async (msg) => $M(JSON.parse, Print)(JSON.stringify({ type: 'warning', uuid: req.uuid, name: process.env.NAME, method: req.method, url: req.path, operationid: req.app.settings.operationid, msg: msg, ts: Date.now() })) ,
+            Error: async (err) => $M(JSON.parse, Print)(JSON.stringify({ type: 'error', uuid: req.uuid, name: process.env.NAME, method: req.method, url: req.path, operationid: req.app.settings.operationid, status : err.status, title : err.title, category : err.category, msg : err.msg, trace : err.trace, ts: Date.now() })) 
         }
         next()
     },

@@ -1,8 +1,7 @@
 
 const dotenv = require('dotenv').config()
-const { $M, Print, mset } = require('lesscode-fp')
-const { Gateway } = require('./src/gateway')
-const { GetSecrets } = require('./src/monads/secret')
+const { $M, $, Print, m2valList } = require('lesscode-fp')
+const { Gateway, GetSecrets } = require('./src/gateway')
 
 const LogCrash = async err => Print(JSON.stringify({ type: 'crash', name: process.env.NAME, err }))
 const StartServer = async env => Gateway(env).catch(err => Print(`[ERROR] : Gateway crashed : ${err}`))

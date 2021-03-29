@@ -35,6 +35,8 @@ paths:
         '405':
           description: Invalid input
           content: {}
+      security:
+        - jwt: []
   /api/v1/tennants/{tennantid}:
     get:
       tags:
@@ -61,6 +63,8 @@ paths:
         '404':
           description: Tennant not found
           content: {}
+      security:
+        - jwt: []
 components:
   schemas:
     Tennant:
@@ -76,5 +80,10 @@ components:
         created:
           type: string
           format: date-time
+  securitySchemes:
+    jwt:            # arbitrary name for the security scheme
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
         
     

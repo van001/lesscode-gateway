@@ -7,13 +7,11 @@
  * mGateway(8080).catch(err => print(`[ERROR] : Gateway crashed : ${err}`))
  */
 
-const { M, $M, Print, $, m2keyList, lmap } = require('lesscode-fp')
-const { DirBrowser, SwaggerValidate } = require('./monads/fs')
+const { $M, $, m2keyList, lmap } = require('lesscode-fp')
+const { DirBrowser } = require('./monads/fs')
+const { SwaggerValidate } = require('./monads/validators')
 const { Express } = require('./monads/server')
-const { Secret } = require('./monads/secret')
-
-
-const { GetSecrets } = require('./monads/secret')
+const { GetSecrets } = require('./monads/aws')
 /**
  * Gateway Monad.
  * config : {
