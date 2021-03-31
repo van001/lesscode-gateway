@@ -1,12 +1,12 @@
 /**
  * Conatin all the defualt middleware definition
  */
-const { $M, Print } = require('lesscode-fp')
+const { $M, Print, lmap } = require('lesscode-fp')
 const { v1: uuidv1 } = require('uuid')
 const cors = require('cors')
 const bodyParser = require('body-parser')
 const ua = require('useragent')
-const $R = ret => async res => ret
+const jwt = require('jwt-simple');
 
 module.exports = {
     BodyParserJSON: bodyParser.json(),
@@ -55,15 +55,35 @@ module.exports = {
             }))
         next()
     },
-    Security: types => (req, res, next) => { 
-        const list = (types)? types : []
+    Security: types => (req, res, next) => {
+        const list = (types) ? types : []
+        if (list.length == 0) return next()
+        const ReturnError = res => async err => { const e = await err; res.status(e.status).send(e) }
+        const Next = async () => next()
+        const ValidateJWT = secret => async token => {
+            //console.log(secret)
+            //console.log(token)
+            const ThrowInvalidTokenErrorError = err => { throw req.Logger.Error({ status: 401, title: 'Unauthorized.', msg: 'Invalid token.', trace: err }) }
+            const Decode = secret => async token => jwt.decode(token, secret, false, 'HS256')
+            const AddToRequest = req => async jwt => { req['JWT'] = jwt; return jwt }
+            return $M(AddToRequest(req), Decode(secret))(token).catch(ThrowInvalidTokenErrorError)
 
-        next()},
+        }
+        const GetJWT = async req => {
+            const ThrowMissingAuthHeaderError = async () => { throw { status: 401, title: 'Unauthorized.', msg: 'Missing authorization header.' } }
+            const ReturnJWT = async req => req.header('Authorization').split(' ')[1]
+            return req.header('Authorization') ? ReturnJWT(req) : ThrowMissingAuthHeaderError()
+        }
+        const ApplySecurity = req => res => sec => {
+            if (sec.jwt) { $M(Next, ValidateJWT(process.env.JWT_TOKEN_SECRET), GetJWT)(req).catch(ReturnError(res)) }
+        }
+        lmap(ApplySecurity(req)(res))(list)
+    },
     Logger: (req, res, next) => {
         req['Logger'] = {
-            Info: async (msg) => $M(JSON.parse, Print)(JSON.stringify({ type: 'info', uuid: req.uuid, name: process.env.NAME, method: req.method, url: req.path, operationid: req.app.settings.operationid, msg: msg, ts: Date.now() })) ,
-            Warning: async (msg) => $M(JSON.parse, Print)(JSON.stringify({ type: 'warning', uuid: req.uuid, name: process.env.NAME, method: req.method, url: req.path, operationid: req.app.settings.operationid, msg: msg, ts: Date.now() })) ,
-            Error: async (err) => $M(JSON.parse, Print)(JSON.stringify({ type: 'error', uuid: req.uuid, name: process.env.NAME, method: req.method, url: req.path, operationid: req.app.settings.operationid, status : err.status, title : err.title, category : err.category, msg : err.msg, trace : err.trace, ts: Date.now() })) 
+            Info: async (msg) => $M(JSON.parse, Print)(JSON.stringify({ type: 'info', uuid: req.uuid, name: process.env.NAME, method: req.method, url: req.path, operationid: req.app.settings.operationid, msg: msg, ts: Date.now() })),
+            Warning: async (msg) => $M(JSON.parse, Print)(JSON.stringify({ type: 'warning', uuid: req.uuid, name: process.env.NAME, method: req.method, url: req.path, operationid: req.app.settings.operationid, msg: msg, ts: Date.now() })),
+            Error: async (err) => $M(JSON.parse, Print)(JSON.stringify({ type: 'error', uuid: req.uuid, name: process.env.NAME, method: req.method, url: req.path, operationid: req.app.settings.operationid, status: err.status, title: err.title, category: err.category, msg: err.msg, trace: err.trace, ts: Date.now() }))
         }
         next()
     },
