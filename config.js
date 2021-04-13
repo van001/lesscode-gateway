@@ -4,5 +4,6 @@ module.exports ={
     rest: {
         port: 8090
     },
-    ZENDESK_TOKEN : `${process.env.ZENDESK_TOKEN}`
+    ZENDESK_TOKEN : `${process.env.ZENDESK_TOKEN}`,
+    JWT_TOKEN_SECRET : `${process.env.SCIM_JWT_TOKEN}`
 }

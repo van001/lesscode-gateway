@@ -7,6 +7,7 @@ const cors = require('cors')
 const bodyParser = require('body-parser')
 const ua = require('useragent')
 const jwt = require('jwt-simple');
+const dotenv = require('dotenv').config()
 
 module.exports = {
     BodyParserJSON: bodyParser.json(),
@@ -55,7 +56,7 @@ module.exports = {
             }))
         next()
     },
-    Security: types => (req, res, next) => {
+    Security: config => types => (req, res, next) => {
         const list = (types) ? types : []
         if (list.length == 0) return next()
         const ReturnError = res => async err => { const e = await err; res.status(e.status).send(e) }
@@ -74,8 +75,9 @@ module.exports = {
             const ReturnJWT = async req => req.header('Authorization').split(' ')[1]
             return req.header('Authorization') ? ReturnJWT(req) : ThrowMissingAuthHeaderError()
         }
+        console.log(config)
         const ApplySecurity = req => res => sec => {
-            if (sec.jwt) { $M(Next, ValidateJWT(process.env.JWT_TOKEN_SECRET), GetJWT)(req).catch(ReturnError(res)) }
+            if (sec.jwt) { $M(Next, ValidateJWT(config.JWT_TOKEN_SECRET), GetJWT)(req).catch(ReturnError(res)) }
         }
         lmap(ApplySecurity(req)(res))(list)
     },
