@@ -18,42 +18,46 @@ module.exports = {
     Metrics: (req, res, next) => {
         res.on("finish",
             () => {
-                Print(JSON.stringify(
-                    {
-                        type: 'metrics',
-                        uuid: req.uuid,
-                        env: process.env.ENV,
-                        region: process.env.REGION,
-                        name: process.env.NAME,
-                        method: req.method,
-                        status: res.statusCode,
-                        url: req.path,
-                        length: res.get('content-length'),
-                        latency: (req.timers && req.timers.latency) ? req.timers.latency.end - req.timers.latency.start : 0,
-                        latencyin: (req.timers && req.timers.latencyin) ? req.timers.latencyin.end - req.timers.latencyin.start : 0,
-                        ts: Date.now()
-                    }))
+                if (!req.path.endsWith('health')) {
+                    Print(JSON.stringify(
+                        {
+                            type: 'metrics',
+                            uuid: req.uuid,
+                            env: process.env.ENV,
+                            region: process.env.REGION,
+                            name: process.env.NAME,
+                            method: req.method,
+                            status: res.statusCode,
+                            url: req.path,
+                            length: res.get('content-length'),
+                            latency: (req.timers && req.timers.latency) ? req.timers.latency.end - req.timers.latency.start : 0,
+                            latencyin: (req.timers && req.timers.latencyin) ? req.timers.latencyin.end - req.timers.latencyin.start : 0,
+                            ts: Date.now()
+                        }))
+                }
             }
         )
         next()
     },
     Request: (req, res, next) => {
-        Print(JSON.stringify(
-            {
-                type: 'request',
-                uuid: req.uuid,
-                env: process.env.ENV,
-                region: process.env.REGION,
-                name: process.env.NAME,
-                user: req.user,
-                method: req.method,
-                useragent: ua.parse(req.headers['user-agent']),
-                url: req.path,
-                query: req.query,
-                body: req.body,
-                length: req.get('content-length'),
-                ts: Date.now()
-            }))
+        if (!req.path.endsWith('health')) {
+            Print(JSON.stringify(
+                {
+                    type: 'request',
+                    uuid: req.uuid,
+                    env: process.env.ENV,
+                    region: process.env.REGION,
+                    name: process.env.NAME,
+                    user: req.user,
+                    method: req.method,
+                    useragent: ua.parse(req.headers['user-agent']),
+                    url: req.path,
+                    query: req.query,
+                    body: req.body,
+                    length: req.get('content-length'),
+                    ts: Date.now()
+                }))
+        }
         next()
     },
     Security: config => types => (req, res, next) => {
