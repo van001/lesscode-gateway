@@ -79,7 +79,7 @@ module.exports = {
             const ReturnJWT = async req => req.header('Authorization').split(' ')[1]
             return req.header('Authorization') ? ReturnJWT(req) : ThrowMissingAuthHeaderError()
         }
-        console.log(config)
+     
         const ApplySecurity = req => res => sec => {
             if (sec.jwt) { $M(Next, ValidateJWT(config.JWT_TOKEN_SECRET), GetJWT)(req).catch(ReturnError(res)) }
         }
