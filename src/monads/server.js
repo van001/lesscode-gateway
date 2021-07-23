@@ -23,6 +23,7 @@ const middlewares = { BodyParserJSON, BodyParserURLEncoded, UUID, LatencyStart, 
  * }
  */
 const Express = config => async specs => {
+ 
     const RegisterSpecs = config => specs => async express => {
 
         // Load Specs, Register endpoints
@@ -86,7 +87,7 @@ const Express = config => async specs => {
         Hint('Attached shutdown handler............'), RegisterShutdownHandler(['SIGINT', 'SIGTERM', 'SIGHUP']),
         Hint('Added defualt Error handler..........'), RegisterErrorHandler,
         Hint('Registering Specs....................'), RegisterSpecs(config)(specs),
-        Hint('Registering middleware...............'), RegisterMiddlewares(config))(config.rest || require('express')())
+        Hint('Registering middleware...............'), RegisterMiddlewares(config))(require('express')())
 }
 
 //Export
