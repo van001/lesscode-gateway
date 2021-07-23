@@ -69,7 +69,7 @@ const Express = config => async specs => {
         return express
     }
 
-    const RegisterErrorHandler = async express => express.use((err, req, res, next) => { res.status(err.status || 500).json({ statusCode: err.status || 500, title: err.title, msg: err.msg }) })
+    const RegisterErrorHandler = async express => express.use((err, req, res, next) => { res.status(err.status || 500).json({ status: err.status || 500, title: err.title, msg: err.msg }) })
     const RegisterOpenAPIValidator = config => async express => { new OpenApiValidator(config).install(express); return express }
 
     const RegisterMiddlewares = config => async express => {
