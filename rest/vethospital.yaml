@@ -35,8 +35,7 @@ paths:
         '405':
           description: Invalid input
           content: {}
-      security:
-        - jwt: []
+     
   /api/v1/tennants/{tennantid}:
     get:
       tags:
@@ -63,8 +62,7 @@ paths:
         '404':
           description: Tennant not found
           content: {}
-      security:
-        - jwt: []
+      
 components:
   schemas:
     Tennant:
@@ -75,11 +73,19 @@ components:
       properties:
         tennantid:
           type: string
+          minLength: 5
+          maxLength: 40
         name:
           type: string
+          minLength: 1
+          maxLength: 100
+        email:
+          type: string
+          pattern: '[^@ \t\r\n]+@[^@ \t\r\n]+\.[^@ \t\r\n]+'
         created:
           type: string
           format: date-time
+          readOnly: true
   securitySchemes:
     jwt:            # arbitrary name for the security scheme
       type: http

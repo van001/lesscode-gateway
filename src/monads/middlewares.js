@@ -68,7 +68,7 @@ module.exports = {
         const ValidateJWT = secret => async token => {
             //console.log(secret)
             //console.log(token)
-            const ThrowInvalidTokenErrorError = err => { throw req.Logger.Error({ status: 401, title: 'Unauthorized.', msg: ['Invalid token.'], trace: err }) }
+            const ThrowInvalidTokenErrorError = err => { throw { status: 401, title: 'Unauthorized.', msg: ['Invalid token.'], trace: err } }
             const Decode = secret => async token => jwt.decode(token, secret, false, 'HS256')
             const AddToRequest = req => async jwt => { req['JWT'] = jwt; return jwt }
             return $M(AddToRequest(req), Decode(secret))(token).catch(ThrowInvalidTokenErrorError)
@@ -89,7 +89,7 @@ module.exports = {
         req['Logger'] = {
             Info: async (msg) => $M(JSON.parse, Print)(JSON.stringify({ type: 'info', uuid: req.uuid, name: process.env.NAME, method: req.method, url: req.path, operationid: req.app.settings.operationid, msg: msg, ts: Date.now() })),
             Warning: async (msg) => $M(JSON.parse, Print)(JSON.stringify({ type: 'warning', uuid: req.uuid, name: process.env.NAME, method: req.method, url: req.path, operationid: req.app.settings.operationid, msg: msg, ts: Date.now() })),
-            Error: async (err) => $M(JSON.parse, Print)(JSON.stringify({ type: 'error', uuid: req.uuid, name: process.env.NAME, method: req.method, url: req.path, operationid: req.app.settings.operationid, status: err.status, title: err.title, category: err.category, msg: err.msg, trace: err.trace, ts: Date.now() }))
+            Error: async (err) => await $M(JSON.parse, Print)(JSON.stringify({ type: 'error', uuid: req.uuid, name: process.env.NAME, method: req.method, url: req.path, operationid: req.app.settings.operationid, status: err.status, title: err.title, category: err.category, msg: err.msg, trace: err.trace, ts: Date.now() }))
         }
         next()
     },

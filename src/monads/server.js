@@ -8,7 +8,8 @@
 const { $, $M, Wait, lmap, m2valList, lfold, Hint, Print, Memoize, lappend } = require('lesscode-fp')
 const $R = ret => async res => ret
 const load = Memoize((path) => $(require)(path)) //memoize 
-const { OpenApiValidator } = require('express-openapi-validator')
+const OpenApiValidator  = require('express-openapi-validator')
+const { formatErrors, formatTitle} = require('../monads/error')
 const { BodyParserJSON, BodyParserURLEncoded, UUID, Start, End, Metrics, Request, Security, Logger, CORS } = require('./middlewares')
 const LatencyStart = Start('latency')
 const LatencyEnd = End('latency')
@@ -29,6 +30,7 @@ const Express = config => async specs => {
         // Load Specs, Register endpoints
         const RegisterSpec = config => express => async spec => {
 
+            RegisterOpenAPIValidator(spec)(express)
             // Endpoint execution
             const expRegEndpoint = spec => path => method => express => {
                 const operationid = spec.paths[path][method].operationId
@@ -70,8 +72,8 @@ const Express = config => async specs => {
         return express
     }
 
-    const RegisterErrorHandler = async express => express.use((err, req, res, next) => { res.status(err.status || 500).json({ status: err.status || 500, title: err.title, msg: err.msg }) })
-    const RegisterOpenAPIValidator = config => async express => { new OpenApiValidator(config).install(express); return express }
+    const RegisterErrorHandler = async express => express.use((err, req, res, next) => { res.status(err.status || 500).json(({ status: err.status || 500, title: formatTitle(err.message) || err.title, msg: formatErrors(err.errors) || err.msg })) })
+    const RegisterOpenAPIValidator = config => async express => { express.use(OpenApiValidator.middleware({apiSpec : config})); return express }
 
     const RegisterMiddlewares = config => async express => {
         const RegisterMiddleware = express => middleware => express.use(middleware)
