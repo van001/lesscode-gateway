@@ -68,14 +68,14 @@ module.exports = {
         const ValidateJWT = secret => async token => {
             //console.log(secret)
             //console.log(token)
-            const ThrowInvalidTokenErrorError = err => { throw req.Logger.Error({ status: 401, title: 'Unauthorized.', msg: 'Invalid token.', trace: err }) }
+            const ThrowInvalidTokenErrorError = err => { throw req.Logger.Error({ status: 401, title: 'Unauthorized.', msg: ['Invalid token.'], trace: err }) }
             const Decode = secret => async token => jwt.decode(token, secret, false, 'HS256')
             const AddToRequest = req => async jwt => { req['JWT'] = jwt; return jwt }
             return $M(AddToRequest(req), Decode(secret))(token).catch(ThrowInvalidTokenErrorError)
 
         }
         const GetJWT = async req => {
-            const ThrowMissingAuthHeaderError = async () => { throw { status: 401, title: 'Unauthorized.', msg: 'Missing authorization header.' } }
+            const ThrowMissingAuthHeaderError = async () => { throw { status: 401, title: 'Unauthorized.', msg: ['Missing authorization header.'] } }
             const ReturnJWT = async req => req.header('Authorization').split(' ')[1]
             return req.header('Authorization') ? ReturnJWT(req) : ThrowMissingAuthHeaderError()
         }

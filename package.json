@@ -23,7 +23,7 @@
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
-    "express-openapi-validator": "^3.16.10",
+    "express-openapi-validator": "^4.12.14",
     "jwt-simple": "^0.5.6",
     "lesscode-fp": "^1.0.38",
     "save": "^2.4.0",

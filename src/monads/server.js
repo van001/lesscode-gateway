@@ -5,7 +5,7 @@
  * 3. Start express                         :   expStart
  */
 
-const { $, $M, Wait, lmap, m2valList, lfold, Hint, Print, Memoize } = require('lesscode-fp')
+const { $, $M, Wait, lmap, m2valList, lfold, Hint, Print, Memoize, lappend } = require('lesscode-fp')
 const $R = ret => async res => ret
 const load = Memoize((path) => $(require)(path)) //memoize 
 const { OpenApiValidator } = require('express-openapi-validator')
@@ -69,7 +69,7 @@ const Express = config => async specs => {
         return express
     }
 
-    const RegisterErrorHandler = async express => express.use((err, req, res, next) => { res.status(err.status || 500).json({ status: err.status || 500, title: err.title, msg: err.msg }) })
+    const RegisterErrorHandler = async express => express.use((err, req, res, next) => { res.status(err.status || 500).json({ statusCode: err.status || 500, title: err.title, msg: err.msg }) })
     const RegisterOpenAPIValidator = config => async express => { new OpenApiValidator(config).install(express); return express }
 
     const RegisterMiddlewares = config => async express => {
@@ -86,7 +86,7 @@ const Express = config => async specs => {
         Hint('Attached shutdown handler............'), RegisterShutdownHandler(['SIGINT', 'SIGTERM', 'SIGHUP']),
         Hint('Added defualt Error handler..........'), RegisterErrorHandler,
         Hint('Registering Specs....................'), RegisterSpecs(config)(specs),
-        Hint('Registering middleware...............'), RegisterMiddlewares(config))(require('express')())
+        Hint('Registering middleware...............'), RegisterMiddlewares(config))(config.rest || require('express')())
 }
 
 //Export
