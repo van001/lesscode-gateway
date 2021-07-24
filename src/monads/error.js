@@ -19,6 +19,8 @@ const formatErrors = err => {
                 return `'${err.path.split('.')[2]}' format is invalid`
             }else if(err.errorCode && err.errorCode.startsWith('readOnly')){
                 return `'${err.path.split('.')[2]}' is read-only`
+            }else if(err.errorCode && err.errorCode.startsWith('enum')){
+                return `'${err.path.split('.')[2]}' ${err.message}`
             }else{
                 return err
             }

@@ -86,6 +86,9 @@ components:
           type: string
           format: date-time
           readOnly: true
+        status:
+          type: string
+          enum: [active, inactive]
   securitySchemes:
     jwt:            # arbitrary name for the security scheme
       type: http
