@@ -77,7 +77,7 @@ components:
           maxLength: 40
         name:
           type: string
-          minLength: 1
+          minLength: 5
           maxLength: 100
         email:
           type: string
@@ -86,6 +86,9 @@ components:
           type: string
           format: date-time
           readOnly: true
+        status:
+          type: string
+          enum: [active, inactive]
   securitySchemes:
     jwt:            # arbitrary name for the security scheme
       type: http
