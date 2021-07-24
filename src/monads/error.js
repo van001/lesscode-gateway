@@ -6,18 +6,19 @@ const formatTitle = err => {
 }
 
 const formatErrors = err => {
+    console.log(err)
     if( err ){
         const formatError = err => {
-            if(err.errorCode.startsWith('pattern')){
-                return `'${err.path.substring(6,err.path.length)}' format is invalid`
-            }else if( err.message.startsWith('should NOT be shorter')){
-                return `'${err.path.substring(6,err.path.length)}' ${err.message}`
-            }else if(err.message.startsWith('should have required property')){
-                return `'${err.path.substring(6,err.path.length)}' is required`
-            }else if(err.message.startsWith('should match format')){
-                return `'${err.path.substring(6,err.path.length)}' format is invalid`
-            }else if(err.errorCode.startsWith('readOnly')){
-                return `'${err.path.substring(6,err.path.length)}' is read-only`
+            if(err.errorCode && err.errorCode.startsWith('pattern')){
+                return `'${err.path.split('.')[2]}' format is invalid`
+            }else if( err.errorCode && err.errorCode.startsWith('minLength')){
+                return `'${err.path.split('.')[2]}' ${err.message}`
+            }else if(err.errorCode && err.errorCode.startsWith('required')){
+                return `'${err.path.split('.')[2]}' is required`
+            }else if(err.errorCode && err.errorCode.startsWith('format')){
+                return `'${err.path.split('.')[2]}' format is invalid`
+            }else if(err.errorCode && err.errorCode.startsWith('readOnly')){
+                return `'${err.path.split('.')[2]}' is read-only`
             }else{
                 return err
             }
