@@ -23,7 +23,7 @@ const formatErrors = err => {
             } else if (err.errorCode && err.errorCode.startsWith('enum')) {
                 return `'${name}' ${err.message}`
             } else if (err.errorCode && err.errorCode.startsWith('type')) {
-                return `${err.message}  ${err.message}`
+                return `'${name}' ${err.message}`
             } else if (err.message && err.message.startsWith('unsupported media type')) {
                 return `${err.message} `
             } else if (err.message && err.message.startsWith('Authorization header required')) {

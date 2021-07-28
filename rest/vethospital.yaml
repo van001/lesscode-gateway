@@ -69,6 +69,7 @@ components:
       required:
         - tennantid
         - name
+        - msg
       type: object
       properties:
         tennantid:
@@ -89,6 +90,12 @@ components:
         status:
           type: string
           enum: [active, inactive]
+        msg:
+          type: array
+          items:
+            type: string
+        public:
+          type: boolean
   securitySchemes:
     jwt:            # arbitrary name for the security scheme
       type: http
