@@ -5,7 +5,7 @@ lesscode-gateway provide support for multiple client server protocols like REST,
 
 ## Features
 - Multiple protocol support using single function.
-- Auto contract validation
-- Observability - Request, Metrics (latency) & Error
-- Auto JWT validation 
+- Auto openapi 3.0 (REST) contract validation.
+- Built-in observability (stdout) - Request, Metrics (latency) & Error.
+- Auto JWT validation.
 
