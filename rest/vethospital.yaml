@@ -24,7 +24,7 @@ paths:
       requestBody:
         description: Pet object that needs to be added to the store
         content:
-          application/octet-stream:
+          application/json:
             schema:
               $ref: '#/components/schemas/Tennant'
         required: true
