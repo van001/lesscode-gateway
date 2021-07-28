@@ -9,4 +9,3 @@ lesscode-gateway provide support for multiple client server protocols like REST,
 - Observability - Request, Metrics (latency) & Error
 - Auto JWT validation 
 
-Curently it supports :
