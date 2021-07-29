@@ -72,7 +72,12 @@ const Express = config => async specs => {
         return express
     }
 
-    const RegisterErrorHandler = async express => express.use((err, req, res, next) => { res.status(err.status || 500).json(({ status: err.status || 500, title: formatTitle(err.message) || err.title, msg: formatErrors(err.errors) || err.msg })) })
+    const RegisterErrorHandler = async express => express.use((err, req, res, next) => { 
+        const ReturnError = res => async err => res.status(err.status || 500).json( err ) 
+        const LogError = async err => req.Logger.Error(({ status: err.status || 500, title: formatTitle(err.message) || err.title, msg: formatErrors(err.errors) || err.msg }))
+        return LogError(err).then(ReturnError(res))
+
+    })
     const RegisterOpenAPIValidator = config => async express => { express.use(OpenApiValidator.middleware({apiSpec : config})); return express }
 
     const RegisterMiddlewares = config => async express => {
