@@ -6,7 +6,6 @@ const formatTitle = err => {
 }
 
 const formatErrors = err => {
-    console.log(err)
     if (err) {
         const formatError = err => {
             const name = err.path.split('.')[2]

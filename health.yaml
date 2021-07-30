@@ -1,0 +1,21 @@
+openapi: 3.0.1
+info:
+  title:  Service Name.
+  description: DEscripbe your API here.
+  contact:
+    email: developer@albertinvent.com
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+  version: 1.0.0
+servers:
+  - url: 'http://localhost:8088'
+paths:
+  /api/v1/tennants/health:
+    get:
+      summary: Healthcheck verification. Replace the srvice with your service name e.g. - duplicate, sdsgenerator etc.
+      operationId: getHealth
+      responses:
+        '200':
+          description: successful operation.
+          content: {}

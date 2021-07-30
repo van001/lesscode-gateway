@@ -1,0 +1,1 @@
+module.exports = async function (req, res) { res.send({ status: 'ok', ts: Date.now() }) }
