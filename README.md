@@ -11,15 +11,27 @@ lesscode-gateway provide support for multiple client server protocols like REST,
 
 # Usage
 
+- Install
 ```
-const dotenv = require('dotenv').config()
+npm install lesscode-fp 
+npm install lesscode-gateway
+```
+or
+```
+yarn add lesscode-fp 
+yarn add lesscode-gateway
+```
+
+
+- Create a javscrript file with the following code
+```
 const { $M, $, Print, m2valList } = require('lesscode-fp')
-const { Gateway, GetSecrets } = require('./src/gateway')
+const { Gateway } = require('lesscode-gateway')
 
 const LogCrash = async err => Print(JSON.stringify({ type: 'crash', name: process.env.NAME, err }))
 const StartServer = async env => Gateway(env)
 
 // Monadic composition...
-$M(StartServer, GetSecrets)((`${process.env.ECS_CLUSTER_NAME}`)).catch(LogCrash)
+$M(StartServer)({}).catch(LogCrash)
 
 ```
