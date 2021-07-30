@@ -2,38 +2,39 @@
 const { lmap } = require('lesscode-fp')
 
 const formatTitle = err => {
-    if (err) return 'Bad request'
+    switch(err.status){
+        case 404 : return "Not founnd"
+        default : return 'Bad request'
+    }
+
 }
 
 const formatErrors = err => {
-    if (err) {
+    if (err.errors) {
         const formatError = err => {
             const name = err.path.split('.')[2]
             if (err.errorCode && err.errorCode.startsWith('pattern')) {
-                return `'${name}' format is invalid`
+                return { label : name, msg: 'format is invalid', category : 'REST'}
             } else if (err.errorCode && err.errorCode.startsWith('minLength')) {
-                return `'${name}' ${err.message}`
+                return { label : name, msg: err.message , category : 'REST'}
             } else if (err.errorCode && err.errorCode.startsWith('required')) {
-                return `'${name}' is required`
+                return { label : name, msg: 'is required', category : 'REST'}
             } else if (err.errorCode && err.errorCode.startsWith('format')) {
-                return `'${name}' format is invalid`
+                return { label : name, msg: 'format is invalid', category : 'REST'}
             } else if (err.errorCode && err.errorCode.startsWith('readOnly')) {
-                return `'${name}' is read-only`
+                return { label : name, msg: 'is read-only', category : 'REST'}
             } else if (err.errorCode && err.errorCode.startsWith('enum')) {
-                return `'${name}' ${err.message}`
+                return { label : name, msg: err.message , category : 'REST'}
             } else if (err.errorCode && err.errorCode.startsWith('type')) {
-                return `'${name}' ${err.message}`
+                return { label : name, msg: err.message , category : 'REST'}
             } else if (err.message && err.message.startsWith('unsupported media type')) {
-                return `${err.message} `
-            } else if (err.message && err.message.startsWith('Authorization header required')) {
-                return `${err.message}`
+                return { label : name, msg: err.message , category : 'REST'}
             } else {
-                return err.message
+                return { msg: err.message , category : 'REST'}
             }
 
-
         }
-        return lmap(formatError)(err)
+        return lmap(formatError)(err.errors)
     }
 }
 module.exports = { formatErrors, formatTitle }

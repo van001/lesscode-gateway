@@ -62,8 +62,6 @@ paths:
         '404':
           description: Tennant not found
           content: {}
-      security:
-        - jwt: []
       
 components:
   schemas:

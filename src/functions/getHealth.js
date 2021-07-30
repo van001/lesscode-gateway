@@ -1,1 +1,4 @@
-module.exports = async function (req, res) { res.send({ status: 'ok', ts: Date.now() }) }
+module.exports = async function (req, res) { 
+    console.log('..................................')
+    res.send({ status: 'ok', ts: Date.now() }) 
+}

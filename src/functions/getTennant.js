@@ -1,4 +1,5 @@
 module.exports =  async function(req, res) {
-    //throw { msg : 'Tennant id is not a number' }
-    res.send(req.JWT)
+    throw {title : 'GET Failed',  errors : [{ msg: 'Tennant id is not a number' }]}
+    req.Logger.Info('Get Tennant...')
+    res.send(req.body)
 }

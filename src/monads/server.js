@@ -8,8 +8,8 @@
 const { $, $M, Wait, lmap, m2valList, lfold, Hint, Print, Memoize, lappend } = require('lesscode-fp')
 const $R = ret => async res => ret
 const load = Memoize((path) => $(require)(path)) //memoize 
-const OpenApiValidator  = require('express-openapi-validator')
-const { formatErrors, formatTitle} = require('../monads/error')
+const OpenApiValidator = require('express-openapi-validator')
+const { formatErrors, formatTitle } = require('../monads/error')
 const { BodyParserJSON, BodyParserURLEncoded, UUID, Start, End, Metrics, Request, Security, Logger, CORS } = require('./middlewares')
 const LatencyStart = Start('latency')
 const LatencyEnd = End('latency')
@@ -24,7 +24,7 @@ const middlewares = { BodyParserJSON, BodyParserURLEncoded, UUID, LatencyStart, 
  * }
  */
 const Express = config => async specs => {
- 
+
     const RegisterSpecs = config => specs => async express => {
 
         // Load Specs, Register endpoints
@@ -62,7 +62,7 @@ const Express = config => async specs => {
     }
 
     const RegisterUncaughtExceptionHandler = async express => {
-        process.on('uncaughtException', function (err) { console.log({ type: 'error', name: process.env.NAME, title: 'Crash', trace: err }) })
+        process.on('uncaughtException', function (err) { console.log({ type: 'crash', name: process.env.NAME, title: 'Crash', trace: err }) })
         return express
     }
     const RegisterShutdownHandler = signals => async express => {
@@ -72,13 +72,14 @@ const Express = config => async specs => {
         return express
     }
 
-    const RegisterErrorHandler = async express => express.use((err, req, res, next) => { 
-        const ReturnError = res => async err => res.status(err.status || 500).json( err ) 
-        const LogError = async err => req.Logger.Error(({ status: err.status || 500, title: formatTitle(err.message) || err.title, msg: formatErrors(err.errors) || err.msg }))
+    const RegisterErrorHandler = async express => express.use((err, req, res, next) => {
+        console.log(`.........`)
+        const ReturnError = res => async err => res.status((err.status) ? err.status : 500).json(err)
+        const LogError = async err => req.Logger.Error(({ status: (err.status) ? err.status : 500, title: (err.title) ? err.title : formatTitle(err), errors: (err.message) ? formatErrors(err) : err.errors }))
         return LogError(err).then(ReturnError(res))
 
     })
-    const RegisterOpenAPIValidator = config => async express => { express.use(OpenApiValidator.middleware({apiSpec : config})); return express }
+    const RegisterOpenAPIValidator = config => async express => { express.use(OpenApiValidator.middleware({ apiSpec: config })); return express }
 
     const RegisterMiddlewares = config => async express => {
         const RegisterMiddleware = express => middleware => express.use(middleware)

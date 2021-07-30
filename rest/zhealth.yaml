@@ -9,13 +9,29 @@ info:
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
   version: 1.0.0
 servers:
-  - url: 'http://localhost:8088'
+  - url: 'http://localhost:8090'
 paths:
-  /api/v1/tennants/health:
+  /api/v1/tennant/health:
     get:
       summary: Healthcheck verification. Replace the srvice with your service name e.g. - duplicate, sdsgenerator etc.
       operationId: getHealth
       responses:
         '200':
           description: successful operation.
-          content: {}
+          content: 
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Health'
+components:
+  schemas:
+    Health:
+      required:
+        - status
+        - ts
+      type: object
+      properties:
+        status:
+          type: string
+        ts:
+          type: string
+          format: date-time
