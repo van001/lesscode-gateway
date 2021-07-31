@@ -66,16 +66,15 @@ const Express = config => async specs => {
         return express
     }
     const RegisterShutdownHandler = signals => async express => {
-        const onShutdown = express => { Print("Shutting down..."); process.exit(0) }
+        const onShutdown = express => { Print('Shutting down...'); process.exit(0) }
         const handler = func => val => process.on(val, func)
         signals.forEach(handler(onShutdown))
         return express
     }
 
     const RegisterErrorHandler = async express => express.use((err, req, res, next) => {
-        console.log(`.........`)
         const ReturnError = res => async err => res.status((err.status) ? err.status : 500).json(err)
-        const LogError = async err => req.Logger.Error(({ status: (err.status) ? err.status : 500, title: (err.title) ? err.title : formatTitle(err), errors: (err.message) ? formatErrors(err) : err.errors }))
+        const LogError = async err => req.Logger.Error(({ status: (err.status) ? err.status : 500, title: (err.title) ? err.title : formatTitle(err), errors: (err.message) ? formatErrors(err) : err.errors , category : 'AUTOVALIDATION'}))
         return LogError(err).then(ReturnError(res))
 
     })

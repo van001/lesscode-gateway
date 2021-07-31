@@ -8,4 +8,3 @@ const StartServer = async env => Gateway(env)
 
 // Monadic composition...
 $M(StartServer, GetSecrets)((`${process.env.ECS_CLUSTER_NAME}`)).catch(LogCrash)
-//console.log('teet')

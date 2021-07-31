@@ -11,7 +11,7 @@ lesscode-gateway provide support for multiple client server protocols like REST,
 
 # Usage
 
-- Install
+- Install the lesscode packages.
 ```
 npm install lesscode-fp 
 npm install lesscode-gateway

@@ -3,7 +3,7 @@ const { lmap } = require('lesscode-fp')
 
 const formatTitle = err => {
     switch(err.status){
-        case 404 : return "Not founnd"
+        case 404 : return 'Not founnd'
         default : return 'Bad request'
     }
 
@@ -12,25 +12,27 @@ const formatTitle = err => {
 const formatErrors = err => {
     if (err.errors) {
         const formatError = err => {
-            const name = err.path.split('.')[2]
+            const split = err.path.split('.')
+            const type = split[1]
+            const name = split[2]
             if (err.errorCode && err.errorCode.startsWith('pattern')) {
-                return { label : name, msg: 'format is invalid', category : 'REST'}
+                return { label : name, msg: 'format is invalid', type : type}
             } else if (err.errorCode && err.errorCode.startsWith('minLength')) {
-                return { label : name, msg: err.message , category : 'REST'}
+                return { label : name, msg: err.message , type : type}
             } else if (err.errorCode && err.errorCode.startsWith('required')) {
-                return { label : name, msg: 'is required', category : 'REST'}
+                return { label : name, msg: 'is required', type : type}
             } else if (err.errorCode && err.errorCode.startsWith('format')) {
-                return { label : name, msg: 'format is invalid', category : 'REST'}
+                return { label : name, msg: 'format is invalid', type : type}
             } else if (err.errorCode && err.errorCode.startsWith('readOnly')) {
-                return { label : name, msg: 'is read-only', category : 'REST'}
+                return { label : name, msg: 'is read-only', type : type}
             } else if (err.errorCode && err.errorCode.startsWith('enum')) {
-                return { label : name, msg: err.message , category : 'REST'}
+                return { label : name, msg: err.message , type : type}
             } else if (err.errorCode && err.errorCode.startsWith('type')) {
-                return { label : name, msg: err.message , category : 'REST'}
+                return { label : name, msg: err.message , type : type}
             } else if (err.message && err.message.startsWith('unsupported media type')) {
-                return { label : name, msg: err.message , category : 'REST'}
+                return { label : name, msg: err.message , type : type}
             } else {
-                return { msg: err.message , category : 'REST'}
+                return { msg: err.message , type : type}
             }
 
         }
