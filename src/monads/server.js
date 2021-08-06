@@ -78,7 +78,7 @@ const Express = config => async specs => {
         return LogError(err).then(ReturnError(res))
 
     })
-    const RegisterOpenAPIValidator = config => async express => { express.use(OpenApiValidator.middleware({ apiSpec: config })); return express }
+    const RegisterOpenAPIValidator = config => async express => { express.use(OpenApiValidator.middleware({ apiSpec: config, validateRequests: true, validateResponses: true })); return express }
 
     const RegisterMiddlewares = config => async express => {
         const RegisterMiddleware = express => middleware => express.use(middleware)

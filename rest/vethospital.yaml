@@ -29,9 +29,12 @@ paths:
               $ref: '#/components/schemas/Tennant'
         required: true
       responses:
-        '201':
-          description: added.
-          content: {}
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tennant'
         '405':
           description: Invalid input
           content: {}
@@ -96,6 +99,7 @@ components:
             type: string
         public:
           type: boolean
+      additionalProperties : true
   securitySchemes:
     jwt:            # arbitrary name for the security scheme
       type: http
