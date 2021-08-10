@@ -8,6 +8,7 @@ const bodyParser = require('body-parser')
 const ua = require('useragent')
 const jwt = require('jwt-simple')
 const dotenv = require('dotenv').config()
+const compression = require('compression')
 
 module.exports = {
     BodyParserJSON: bodyParser.json(),
@@ -93,5 +94,6 @@ module.exports = {
         }
         next()
     },
-    CORS: cors()
+    CORS: cors(),
+    Compression: compression()
 }

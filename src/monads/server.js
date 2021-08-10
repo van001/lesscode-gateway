@@ -10,12 +10,13 @@ const $R = ret => async res => ret
 const load = Memoize((path) => $(require)(path)) //memoize 
 const OpenApiValidator = require('express-openapi-validator')
 const { formatErrors, formatTitle } = require('../monads/error')
-const { BodyParserJSON, BodyParserURLEncoded, UUID, Start, End, Metrics, Request, Security, Logger, CORS } = require('./middlewares')
+const { BodyParserJSON, BodyParserURLEncoded, UUID, Start, End, Metrics,
+    Request, Security, Logger, CORS, Compression } = require('./middlewares')
 const LatencyStart = Start('latency')
 const LatencyEnd = End('latency')
 
 //defualt middlewares
-const middlewares = { BodyParserJSON, BodyParserURLEncoded, UUID, LatencyStart, LatencyEnd, Metrics, Request, Logger, CORS }
+const middlewares = { BodyParserJSON, BodyParserURLEncoded, UUID, LatencyStart, LatencyEnd, Metrics, Request, Logger, CORS, Compression }
 
 /**
  * Express monad. Accepts the config and openspec3x in json format.
@@ -74,7 +75,7 @@ const Express = config => async specs => {
 
     const RegisterErrorHandler = async express => express.use((err, req, res, next) => {
         const ReturnError = res => async err => res.status((err.status) ? err.status : 500).json(err)
-        const LogError = async err => req.Logger.Error(({ status: (err.status) ? err.status : 500, title: (err.title) ? err.title : formatTitle(err), errors: (err.message) ? formatErrors(err) : err.errors , category : 'AUTOVALIDATION'}))
+        const LogError = async err => req.Logger.Error(({ status: (err.status) ? err.status : 500, title: (err.title) ? err.title : formatTitle(err), errors: (err.message) ? formatErrors(err) : err.errors, category: 'AUTOVALIDATION' }))
         return LogError(err).then(ReturnError(res))
 
     })
