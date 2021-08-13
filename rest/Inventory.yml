@@ -1,0 +1,666 @@
+openapi: 3.0.1
+info:
+  title: Inventory Service
+  description: API provides basic CRUD functionality for inventories in Albert application.
+  contact:
+    email: developer@albertinvent.com
+  license:
+    name: Apache 2.0
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+  version: 1.0.0
+servers:
+  - url: "http://localhost:8091"
+    description: Local server
+  - url: "https://dev.albertinventdev.com"
+    description: Dev server
+tags:
+  - name: Inventory
+    description: Methods covering E2E functionality for Inventories.
+paths:
+  /api/v3/inventories/health:
+    get:
+      summary: Healthcheck verification.
+      operationId: getHealth
+      tags:
+        - Health Check
+      responses:
+        "200":
+          description: successful operation.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Health"
+
+  /api/v3/inventories:
+    post:
+      summary: For creating new inventory
+      description: Creates a new inventory in Albert , and returns a uniqueId for the Inventory.
+      operationId: postInventory
+      tags:
+        - Inventory
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Inventory"
+            examples: # Child of media type
+              NewInventory: # Example 1
+                value:
+                  name: Goggles
+                  description: Safety Equipment
+                  companyId: COM1
+                  Minimum:
+                    - locationId: LOC1
+                      minimum: 100
+                  category: Equipment
+                  unitCategory: units
+
+      responses:
+        201:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Inventory"
+              examples:
+                Success:
+                  value:
+                    albertId: INVE1
+                    name: Goggles
+                    description: Safety Equipment
+                    companyId: COM1
+                    Minimum:
+                      - locationId: LOC1
+                        minimum: 100
+                    category: Equipment
+                    unitCategory: units
+                    status: active
+                    createdAt: "2021-07-29T20:20:20.041Z"
+                    createdBy: user1
+
+        400:
+          $ref: "#/components/responses/BadRequest"
+        401:
+          $ref: "#/components/responses/Unauthorized"
+        403:
+          $ref: "#/components/responses/Forbidden"
+        404:
+          $ref: "#/components/responses/NotFound"
+        500:
+          $ref: "#/components/responses/InternalServerError"
+      security:
+        - jwt: []
+    get:
+      summary: For fetching list of Inventories
+      operationId: getInventories
+      tags:
+        - Inventory
+      parameters:
+        - name: limit
+          description: Specifies the total number of records fetched in response
+          schema:
+            type: integer
+            default: 100
+            minimum: 1
+            maxLength: 100
+            minLength: 1
+          in: query
+          required: false
+        - name: startKey
+          description: The primary key of the first item that this operation will evaluate. Use the value that was returned for 'lastKey' in the previous operation.
+          schema:
+            type: string
+          in: query
+          required: false
+        - name: name
+          description: name of the Inventory , can be list of 5 array if exactMatch is set to false
+          schema:
+            type: array
+            items:
+              type: string
+          in: query
+          required: false
+        - name: category
+          description: category of the inventory
+          schema:
+            type: string
+            enum:
+              - RawMaterials
+              - Consumables
+              - Equipment
+              - Formulas
+          in: query
+          required: false
+        - name: orderBy
+          description: Fetches record in order of createdAt.
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+            default: desc
+          in: query
+          required: false
+        - name: exactMatch
+          description: determines if name field should be exact match or not.
+          schema:
+            type: boolean
+            default: false
+          in: query
+          required: false
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Inventories"
+              examples:
+                Success:
+                  value:
+                    total: 200
+                    lastKey: lastKey#INVE1
+                    Items:
+                      - albertId: INVE1
+                        name: Goggles
+                        description: Safety Equipment
+                        category: Equipment
+                        unitCategory: units
+                        status: active
+                        createdAt: "2021-07-29T20:20:20.041Z"
+                        createdBy: user1
+        400:
+          $ref: "#/components/responses/BadRequest"
+        401:
+          $ref: "#/components/responses/Unauthorized"
+        403:
+          $ref: "#/components/responses/Forbidden"
+        404:
+          $ref: "#/components/responses/NotFound"
+        500:
+          $ref: "#/components/responses/InternalServerError"
+      security:
+        - jwt: []
+  /api/v3/inventories/{id}:
+    get:
+      summary: For fetching a Inventory info
+      operationId: getInventoryById
+      tags:
+        - Inventory
+      parameters:
+        - name: id
+          schema:
+            type: string
+          in: path
+          required: true
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Inventory"
+              examples:
+                Success:
+                  value:
+                    albertId: INVE1
+                    name: Goggles
+                    description: Safety Equipment
+                    companyId: COM1
+                    Minimum:
+                      - locationId: LOC1
+                        minimum: 100
+                    category: Equipment
+                    unitCategory: units
+                    status: active
+                    createdAt: "2021-07-29T20:20:20.041Z"
+                    createdBy: user1
+
+        400:
+          $ref: "#/components/responses/BadRequest"
+        401:
+          $ref: "#/components/responses/Unauthorized"
+        403:
+          $ref: "#/components/responses/Forbidden"
+        404:
+          $ref: "#/components/responses/NotFound"
+        500:
+          $ref: "#/components/responses/InternalServerError"
+      security:
+        - jwt: []
+    patch:
+      summary: For updating specific value of an Inventory
+      operationId: patchInventoryById
+      tags:
+        - Inventory
+      parameters:
+        - name: id
+          schema:
+            type: string
+          in: path
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatchInventory"
+            examples:
+              UpdateCompany:
+                value:
+                  data:
+                    - operation: update
+                      attribute: name
+                      oldValue: Goggles
+                      newValue: Safety Goggles
+      responses:
+        204:
+          $ref: "#/components/responses/NoContent"
+        400:
+          $ref: "#/components/responses/BadRequest"
+        401:
+          $ref: "#/components/responses/Unauthorized"
+        403:
+          $ref: "#/components/responses/Forbidden"
+        404:
+          $ref: "#/components/responses/NotFound"
+        500:
+          $ref: "#/components/responses/InternalServerError"
+      security:
+        - jwt: []
+    delete:
+      summary: For deleting a Inventory
+      operationId: deleteInventoryById
+      tags:
+        - Inventory
+      parameters:
+        - name: id
+          schema:
+            type: string
+          in: path
+          required: true
+      responses:
+        204:
+          $ref: "#/components/responses/NoContent"
+        400:
+          $ref: "#/components/responses/BadRequest"
+        401:
+          $ref: "#/components/responses/Unauthorized"
+        403:
+          $ref: "#/components/responses/Forbidden"
+        404:
+          $ref: "#/components/responses/NotFound"
+        500:
+          $ref: "#/components/responses/InternalServerError"
+      security:
+        - jwt: []
+components:
+  responses:
+    NoContent:
+      description: No Content
+      content:
+        application/json:
+          {}
+
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          examples:
+            BadRequest:
+              value:
+                type: error
+                uuid: 2b367990-f6a1-11eb-a203-cf21c3236629
+                method: POST|PATCH|GET|DELETE
+                url: /api/v3/inventories
+                status: 400
+                title: Bad Request
+                category: AUTOVALIDATION
+                errors:
+                  - msg: should NOT be shorter than 2 characters
+                    label: name
+                    type: body
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          examples:
+            Unauthorized:
+              value:
+                type: error
+                uuid: 2b367990-f6a1-11eb-a203-cf21c3236629
+                method: POST|PATCH|GET|DELETE
+                url: /api/v3/inventories
+                status: 401
+                title: Unauthorized
+                category: AUTOVALIDATION
+                errors:
+                  - msg: Authorization header required
+
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          examples:
+            Forbidden:
+              value:
+                type: error
+                uuid: 2b367990-f6a1-11eb-a203-cf21c3236629
+                method: POST|PATCH|GET|DELETE
+                url: /api/v3/inventories
+                status: 403
+                title: Forbidden
+                category: AUTOVALIDATION
+                errors:
+                  - msg: Forbidden Access
+                    label: inventoryId
+                    type: body
+
+    NotFound:
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          examples:
+            NotFound:
+              value:
+                type: error
+                uuid: 2b367990-f6a1-11eb-a203-cf21c3236629
+                method: POST|PATCH|GET|DELETE
+                url: /api/v3/inventories
+                status: 404
+                title: Not Found
+                category: AUTOVALIDATION
+                errors:
+                  - msg: No records found
+                    label: inventoryId
+                    type: body
+    InternalServerError:
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          examples:
+            InternalServerError:
+              value:
+                type: error
+                uuid: 2b367990-f6a1-11eb-a203-cf21c3236629
+                method: POST|PATCH|GET|DELETE
+                url: /api/v3/inventories
+                status: 500
+                title: Internal Server Error
+                category: AUTOVALIDATION
+                errors:
+                  - msg: Internal Server Error
+                    label: inventoryId
+                    type: body
+
+  schemas:
+    Health:
+      properties:
+        status:
+          type: string
+        ts:
+          type: integer
+    Inventory:
+      properties:
+        albertId:
+          type: string
+          description: Unique Identifier of the Inventory which is created.
+          readOnly: true
+        name:
+          type: string
+          description: Name of the Inventory which is created.
+          minLength: 2
+          maxLength: 255
+        description:
+          type: string
+          description: Additional information on the inventory
+          minLength: 2
+          maxLength: 500
+        companyId:
+          type: string
+          description: Manufactuere of the Inventory
+          minLength: 1
+          maxLength: 255
+        Minimum:
+          type: array
+          items:
+            $ref: "#/components/schemas/Minimum"
+        category:
+          type: string
+          description: Type of Inventory
+          enum:
+            - RawMaterials
+            - Consumables
+            - Equipment
+            - Formulas
+        unitCategory:
+          type: string
+          enum:
+            - mass
+            - volume
+            - length
+            - pressure
+            - units
+        status:
+          type: string
+          description: Status of the Inventory.
+          enum:
+            - active
+            - inactive
+          readOnly: true
+        createdBy:
+          type: string
+          description: UserId by Inventory is created.
+          readOnly: true
+        createdAt:
+          type: string
+          description: Date-time at which Inventory is created.
+          format: date-time
+          readOnly: true
+        updatedBy:
+          type: string
+          description: UserId by Inventory is updated.
+          readOnly: true
+        updatedAt:
+          type: string
+          description: Date-time at which Inventory is updated.
+          format: date-time
+          readOnly: true
+      additionalProperties: false
+      required:
+        - albertId
+        - name
+        - status
+        - description
+        - companyId
+        - category
+        - unitCategory
+        - createdBy
+        - createdAt
+    Minimum:
+      properties:
+        locationId:
+          type: string
+          minLength: 1
+          maxLength: 10
+        minimum:
+          type: integer
+          minLength: 1
+          maxLength: 10
+      additionalProperties: false
+      required:
+        - locationId
+        - minimum
+    Inventories:
+      properties:
+        total:
+          type: integer
+          description: total number of Items available
+        lastKey:
+          type: string
+          description: To apply in a subsequent operation as 'startKey' to continue the operation for next set of records.
+        Items:
+          type: array
+          items:
+            properties:
+              albertId:
+                type: string
+                description: Unique Identifier of the Inventory which is created.
+                readOnly: true
+              name:
+                type: string
+                description: Name of the Inventory which is created.
+                minLength: 2
+                maxLength: 255
+              description:
+                type: string
+                description: Additional information on the inventory
+                minLength: 2
+                maxLength: 500
+              category:
+                type: string
+                description: Type of Inventory
+                enum:
+                  - RawMaterials
+                  - Consumables
+                  - Equipment
+                  - Formulas
+              unitCategory:
+                type: string
+                enum:
+                  - mass
+                  - volume
+                  - length
+                  - pressure
+                  - units
+              status:
+                type: string
+                description: Status of the Inventory.
+                enum:
+                  - active
+                  - inactive
+                readOnly: true
+              createdBy:
+                type: string
+                description: UserId by Inventory is created.
+                readOnly: true
+              createdAt:
+                type: string
+                description: Date-time at which Inventory is created.
+                format: date-time
+                readOnly: true
+              updatedBy:
+                type: string
+                description: UserId by Inventory is updated.
+                readOnly: true
+              updatedAt:
+                type: string
+                description: Date-time at which Inventory is updated.
+                format: date-time
+                readOnly: true
+
+    PatchInventory:
+      properties:
+        data:
+          type: array
+          minLength: 1
+          items:
+            type: object
+            properties:
+              operation:
+                type: string
+                description: Operation that is to be performed.
+                enum:
+                  - update
+                  - add
+              attribute:
+                type: string
+                description: name of the attribute
+                enum:
+                  - name
+                  - description
+                  - companyId
+                  - minimum
+                  - unitCategory
+                  - locationId
+                minLength: 2
+                maxLength: 500
+              oldValue:
+                type: string
+                description: old value of the attribute. Mandatory when operation is 'update'.
+                minLength: 1
+                maxLength: 500
+              newValue:
+                type: string
+                description: new value of the attribute
+                minLength: 1
+                maxLength: 500
+              locationId:
+                type: string
+                description: locationId of the attribute. Mandatory when attribute is 'minimum'.
+                minLength: 1
+                maxLength: 500
+            required:
+              - operation
+              - attribute
+              - newValue
+            additionalProperties:
+              type: string
+              description: Mandatory when attribute is 'minimum' . locationId is required as additional parameter and vice-versa.
+      additionalProperties: false
+      required:
+        - data
+    Error:
+      type: object
+      properties:
+        uuid:
+          type: string
+          description: Unique UUID to trace the API request
+        env:
+          type: string
+          description: API environment.
+        region:
+          type: string
+          description: API region.
+        type:
+          type: string
+          description: Error type.
+        method:
+          type: string
+          description: Method which returned error.
+          enum:
+            - POST
+            - PATCH
+            - PUT
+            - GET
+            - DELETE
+        status:
+          type: integer
+          description: HTTP statusCode
+        title:
+          type: string
+          description: short description of the error code
+        errors:
+          type: array
+          items:
+            properties:
+              msg:
+                type: string
+              label:
+                type: string
+              type:
+                type: string
+  securitySchemes:
+    jwt: # arbitrary name for the security scheme
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

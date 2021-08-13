@@ -3,8 +3,12 @@ const { lmap } = require('lesscode-fp')
 
 const formatTitle = err => {
     switch(err.status){
-        case 404 : return 'Not founnd'
-        default : return 'Bad request'
+        case 401 : return "Unauthorized"
+        case 404 : return 'Not Found'
+        case 405 : return "Method Not Allowed"
+        case 413 : return "Payload Too Large"
+        case 415 : return "Unsupported Media Type"
+        default : return 'Bad Request'
     }
 
 }
@@ -14,7 +18,7 @@ const formatErrors = err => {
         const formatError = err => {
             const split = err.path.split('.')
             const type = split[1]
-            const name = split[2]
+            const name = split.slice(2).join('.')
             if (err.errorCode && err.errorCode.startsWith('pattern')) {
                 return { label : name, msg: 'format is invalid', type : type}
             } else if (err.errorCode && err.errorCode.startsWith('minLength')) {
