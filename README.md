@@ -1,7 +1,7 @@
 # Overview
 ![Architecture](https://github.com/van001/lcgateway/blob/master/lcgateway.png)
 
-lesscode-gateway provide support for multiple client server protocols like REST, GraqhQL, MQM (Message Q Messages). Simply drop your openapi 3.0, graqlql or mqm files (vai open spec) and lessacode-gateway will automatically map the endpoints to it's execution (functions). 
+lesscode-gateway provide support for multiple client server protocols like REST, GraqhQL, MQM (Message Q Messages). Simply drop your openapi 3.0 spec and lesscode gateway will automatically convert into graplql oamd mqm spec (vai open spec) map all the endpoints to it's single execution (functions). 
 
 # Features
 - Multiple protocol support using single function.
