@@ -1,6 +1,6 @@
 {
   "name": "lesscode-gateway",
-  "version": "1.0.52",
+  "version": "1.0.53",
   "description": "protocol gateway",
   "main": "./src/gateway.js",
   "scripts": {
