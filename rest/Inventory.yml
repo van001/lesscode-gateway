@@ -9,7 +9,7 @@ info:
     url: "http://www.apache.org/licenses/LICENSE-2.0.html"
   version: 1.0.0
 servers:
-  - url: "http://localhost:8091"
+  - url: "http://localhost:8090"
     description: Local server
   - url: "https://dev.albertinventdev.com"
     description: Dev server

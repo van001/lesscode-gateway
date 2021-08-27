@@ -14,6 +14,8 @@ const { BodyParserJSON, BodyParserURLEncoded, UUID, Start, End, Metrics,
     Request, Security, Logger, CORS, Compression } = require('./middlewares')
 const LatencyStart = Start('latency')
 const LatencyEnd = End('latency')
+const swaggerUi = require('swagger-ui-express')
+const { ConfigurationOptions } = require('aws-sdk')
 
 //defualt middlewares
 const middlewares = { BodyParserJSON, BodyParserURLEncoded, UUID, LatencyStart, LatencyEnd, Metrics, Request, Logger, CORS, Compression }
@@ -30,7 +32,8 @@ const Express = config => async specs => {
 
         // Load Specs, Register endpoints
         const RegisterSpec = config => express => async spec => {
-
+          
+            RegisterSwaggerUI(config)(spec)(express)
             RegisterOpenAPIValidator(spec)(express)
             // Endpoint execution
             const expRegEndpoint = spec => path => method => express => {
@@ -79,9 +82,20 @@ const Express = config => async specs => {
         return LogError(err).then(ReturnError(res))
 
     })
+
+    const RegisterSwaggerUI = config => spec => express => {
+
+        const register = url => spec => {
+            (url) ? express.use(url,swaggerUi.serve, swaggerUi.setup(spec)) : ""
+            return express
+        }
+        return (config.rest.docs) ? register(config.rest.docs[spec.info.title])(spec) : express
+     
+    }
     const RegisterOpenAPIValidator = config => async express => { express.use(OpenApiValidator.middleware({ apiSpec: config, validateRequests: true, validateResponses: true })); return express }
 
     const RegisterMiddlewares = config => async express => {
+       
         const RegisterMiddleware = express => middleware => express.use(middleware)
         const RegisterDefaultMiddlewares = async express => { $(lmap(RegisterMiddleware(express)), m2valList)(middlewares); return express }// register default middlewares
         const RegisterCustomMiddlewares = async express => { $(lmap(RegisterMiddleware(express)), m2valList)(config.middlewares || {}); return express }// add new / overrite 
