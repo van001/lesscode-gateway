@@ -9,7 +9,7 @@ info:
     url: "http://www.apache.org/licenses/LICENSE-2.0.html"
   version: 1.0.0
 servers:
-  - url: "http://localhost:8090"
+  - url: "http://localhost:8091"
     description: Local server
   - url: "https://dev.albertinventdev.com"
     description: Dev server
@@ -49,6 +49,7 @@ paths:
                   name: Goggles
                   description: Safety Equipment
                   companyId: COM1
+                  companyName: comp ABC
                   Minimum:
                     - locationId: LOC1
                       minimum: 100
@@ -69,6 +70,7 @@ paths:
                     name: Goggles
                     description: Safety Equipment
                     companyId: COM1
+                    companyName: comp ABC
                     Minimum:
                       - locationId: LOC1
                         minimum: 100
@@ -88,8 +90,7 @@ paths:
           $ref: "#/components/responses/NotFound"
         500:
           $ref: "#/components/responses/InternalServerError"
-      security:
-        - jwt: []
+      
     get:
       summary: For fetching list of Inventories
       operationId: getInventories
@@ -100,9 +101,10 @@ paths:
           description: Specifies the total number of records fetched in response
           schema:
             type: integer
-            default: 100
+            default: 50
             minimum: 1
-            maxLength: 100
+            maximum: 50
+            maxLength: 2
             minLength: 1
           in: query
           required: false
@@ -110,6 +112,7 @@ paths:
           description: The primary key of the first item that this operation will evaluate. Use the value that was returned for 'lastKey' in the previous operation.
           schema:
             type: string
+            minLength: 2
           in: query
           required: false
         - name: name
@@ -118,6 +121,9 @@ paths:
             type: array
             items:
               type: string
+              minLength: 2
+              maxLength: 255
+            maxItems: 5
           in: query
           required: false
         - name: category
@@ -207,6 +213,7 @@ paths:
                     name: Goggles
                     description: Safety Equipment
                     companyId: COM1
+                    companyName: comp ABC
                     Minimum:
                       - locationId: LOC1
                         minimum: 100
@@ -298,8 +305,7 @@ components:
     NoContent:
       description: No Content
       content:
-        application/json:
-          {}
+        application/json: {}
 
     BadRequest:
       description: Bad Request
@@ -430,6 +436,12 @@ components:
           description: Manufactuere of the Inventory
           minLength: 1
           maxLength: 255
+        companyName:
+          type: string
+          description: Manufactuere of the Inventory
+          minLength: 1
+          maxLength: 255
+          readOnly: true
         Minimum:
           type: array
           items:
@@ -485,7 +497,7 @@ components:
         - category
         - unitCategory
         - createdBy
-        - createdAt
+
     Minimum:
       properties:
         locationId:
@@ -582,6 +594,7 @@ components:
                 enum:
                   - update
                   - add
+                  - delete
               attribute:
                 type: string
                 description: name of the attribute

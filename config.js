@@ -5,7 +5,11 @@ module.exports = {
         port: 8090,
         docs : {
             'Inventory Service' : '/api/v3/inventories/spec'
-        }
+        },
+        schemas : {
+            'Inventory Service' : '/api/v3/inventories/schema'
+        },
+        autoValidation : true
     },
     ZENDESK_TOKEN : `${process.env.ZENDESK_TOKEN}`,
     JWT_TOKEN_SECRET : `${process.env.SCIM_JWT_TOKEN}`

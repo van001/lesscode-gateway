@@ -11,14 +11,15 @@ const load = Memoize((path) => $(require)(path)) //memoize
 const OpenApiValidator = require('express-openapi-validator')
 const { formatErrors, formatTitle } = require('../monads/error')
 const { BodyParserJSON, BodyParserURLEncoded, UUID, Start, End, Metrics,
-    Request, Security, Logger, CORS, Compression } = require('./middlewares')
+    Request, Activity, Security, Logger, CORS, Compression } = require('./middlewares')
 const LatencyStart = Start('latency')
 const LatencyEnd = End('latency')
 const swaggerUi = require('swagger-ui-express')
 const { ConfigurationOptions } = require('aws-sdk')
+const { NotFound } = require('express-openapi-validator/dist/openapi.validator')
 
 //defualt middlewares
-const middlewares = { BodyParserJSON, BodyParserURLEncoded, UUID, LatencyStart, LatencyEnd, Metrics, Request, Logger, CORS, Compression }
+const middlewares = { BodyParserJSON, BodyParserURLEncoded, UUID, LatencyStart, LatencyEnd, Metrics, Request, Activity, Logger, CORS, Compression }
 
 /**
  * Express monad. Accepts the config and openspec3x in json format.
@@ -32,9 +33,12 @@ const Express = config => async specs => {
 
         // Load Specs, Register endpoints
         const RegisterSpec = config => express => async spec => {
-          
+            
+            RegisterSwaggerSchema(config)(spec)(express)
             RegisterSwaggerUI(config)(spec)(express)
-            RegisterOpenAPIValidator(spec)(express)
+        
+            
+            RegisterOpenAPIValidator(config)(spec)(express)
             // Endpoint execution
             const expRegEndpoint = spec => path => method => express => {
                 const operationid = spec.paths[path][method].operationId
@@ -92,9 +96,20 @@ const Express = config => async specs => {
         return (config.rest.docs) ? register(config.rest.docs[spec.info.title])(spec) : express
      
     }
-    const RegisterOpenAPIValidator = config => async express => { express.use(OpenApiValidator.middleware({ apiSpec: config, validateRequests: true, validateResponses: true })); return express }
+    const RegisterSwaggerSchema = config => spec => express => {
+        const execute = spec => async function(req, res) {
+                //console.log(req)
+                const schema = spec['components']['schemas'][req.params.name]
+                const returnSchema = res => schema => res.send(schema)
+                const returnError = res => res.send(404)
+                return (schema) ?  returnSchema(res)(schema): returnError(res)
+        }
+        return (config.rest.schemas) ? express.get(`${config.rest.schemas[spec.info.title]}/:name`, execute(spec)) : express
+    }
+    const RegisterOpenAPIValidator = config => spec => async express => {  (config.rest.autoValidation) ? express.use(OpenApiValidator.middleware({ apiSpec: spec, validateRequests: true, validateResponses: true })) : ''; return express }
 
     const RegisterMiddlewares = config => async express => {
+    
        
         const RegisterMiddleware = express => middleware => express.use(middleware)
         const RegisterDefaultMiddlewares = async express => { $(lmap(RegisterMiddleware(express)), m2valList)(middlewares); return express }// register default middlewares
