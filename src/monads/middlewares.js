@@ -41,6 +41,13 @@ module.exports = {
         next()
     },
     Request: (req, res, next) => {
+        let postBody = req.body
+        if(postBody) {
+            postBody = delete postBody.token
+            postBody = delete postBody.password
+            postBody = delete postBody.secret
+        }
+        
         if (!req.path.endsWith('health')) {
             Print(JSON.stringify(
                 {
