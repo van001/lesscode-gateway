@@ -41,7 +41,7 @@ module.exports = {
         next()
     },
     Request: (req, res, next) => {
-        let postBody = req.body
+        let postBody = Object.assign({}, req.body)
         if(postBody) {
             delete postBody.token
             delete postBody.password
