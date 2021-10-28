@@ -61,7 +61,7 @@ module.exports = {
                     useragent: ua.parse(req.headers['user-agent']),
                     url: req.path,
                     query: req.query,
-                    body: req.body,
+                    body: postBody,
                     length: req.get('content-length'),
                     ts: Date.now()
                 }))
