@@ -9,6 +9,7 @@ const ua = require('useragent')
 const jwt = require('jwt-simple')
 const dotenv = require('dotenv').config()
 const compression = require('compression')
+const { request } = require('chai')
 
 module.exports = {
     BodyParserJSON: bodyParser.json(),
@@ -72,11 +73,11 @@ module.exports = {
         const extract = req => res => {
             console.log(req.method)
             switch (req.method) {
-                case 'POST': { return { albertId: res.id } }
-                case 'GET': { return '' }
-                case 'DELETE': { return '' }
-                case 'PUT': { return '' }
-                case 'PATCH': { return '' }
+                case 'POST': { return { albertId: res.id || res.albertId } }
+                case 'GET': { return { albertId: req.path.id || res.path.albertId || req.query.id | request.query.albertId} }
+                case 'DELETE': { return { albertId: req.path.id || res.path.albertId || req.query.id | request.query.albertId} }
+                case 'PUT': { return { albertId: req.path.id || res.path.albertId || req.query.id | request.query.albertId} }
+                case 'PATCH': { return req.body }
             }
 
         }
