@@ -73,9 +73,9 @@ module.exports = {
             console.log(req.method)
             switch (req.method) {
                 case 'POST': { return { albertId: res.id || res.albertId } }
-                case 'GET': { return { albertId: req.path.id || res.path.albertId || req.query.id | request.query.albertId} }
-                case 'DELETE': { return { albertId: req.path.id || res.path.albertId || req.query.id | request.query.albertId} }
-                case 'PUT': { return { albertId: req.path.id || res.path.albertId || req.query.id | request.query.albertId} }
+                case 'GET': { return { albertId: req.params.id || res.params.albertId || req.query.id | request.query.albertId} }
+                case 'DELETE': { return { albertId: req.params.id || res.params.albertId || req.query.id | request.query.albertId} }
+                case 'PUT': { return { albertId: req.params.id || res.params.albertId || req.query.id | request.query.albertId} }
                 case 'PATCH': { return req.body }
             }
 
