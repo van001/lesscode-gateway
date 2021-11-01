@@ -9,7 +9,6 @@ const ua = require('useragent')
 const jwt = require('jwt-simple')
 const dotenv = require('dotenv').config()
 const compression = require('compression')
-const { request } = require('chai')
 
 module.exports = {
     BodyParserJSON: bodyParser.json(),
