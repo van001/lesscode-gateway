@@ -42,12 +42,12 @@ module.exports = {
     },
     Request: (req, res, next) => {
         let postBody = Object.assign({}, req.body)
-        if(postBody) {
+        if (postBody) {
             delete postBody.token
             delete postBody.password
             delete postBody.secret
         }
-        
+
         if (!req.path.endsWith('health')) {
             Print(JSON.stringify(
                 {
@@ -72,10 +72,16 @@ module.exports = {
         const extract = req => res => {
             console.log(req.method)
             switch (req.method) {
-                case 'POST': { return { albertId: res.id || res.albertId } }
-                case 'GET': { return { albertId: req.params.id || res.params.albertId || req.query.id | request.query.albertId} }
-                case 'DELETE': { return { albertId: req.params.id || res.params.albertId || req.query.id | request.query.albertId} }
-                case 'PUT': { return { albertId: req.params.id || res.params.albertId || req.query.id | request.query.albertId} }
+                case 'POST': { return { id: res.id || res.albertId } }
+                case 'PUT' :
+                case 'DELETE': 
+                case 'GET': { 
+                                if(req.params){
+                                    return {id : req.params.id || req.params.albertId}
+                                }else if(req.query){
+                                    return {id : req.query.id || req.query.albertId}
+                                }
+                           }
                 case 'PATCH': { return req.body }
             }
 
@@ -95,7 +101,7 @@ module.exports = {
                         url: req.path,
                         ts: Date.now(),
                         user: req.user,
-                        data : extract(req)(res)
+                        data: extract(req)(res)
                     }))
             }
             res.send = oldSend // set function back to avoid the 'double-send'

@@ -15,8 +15,6 @@ const { BodyParserJSON, BodyParserURLEncoded, UUID, Start, End, Metrics,
 const LatencyStart = Start('latency')
 const LatencyEnd = End('latency')
 const swaggerUi = require('swagger-ui-express')
-const { ConfigurationOptions } = require('aws-sdk')
-const { NotFound } = require('express-openapi-validator/dist/openapi.validator')
 
 //defualt middlewares
 const middlewares = { BodyParserJSON, BodyParserURLEncoded, UUID, LatencyStart, LatencyEnd, Metrics, Request, Activity, Logger, CORS, Compression }
@@ -88,14 +86,13 @@ const Express = config => async specs => {
     })
 
     const RegisterSwaggerUI = config => spec => express => {
-
         const register = url => spec => {
             (url) ? express.use(url,swaggerUi.serve, swaggerUi.setup(spec)) : ""
             return express
         }
         return (config.rest.docs) ? register(config.rest.docs[spec.info.title])(spec) : express
-     
     }
+    
     const RegisterSwaggerSchema = config => spec => express => {
         const execute = spec => async function(req, res) {
                 //console.log(req)
