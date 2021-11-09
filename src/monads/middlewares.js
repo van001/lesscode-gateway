@@ -72,6 +72,7 @@ module.exports = {
         const extractId = req => res => {
             
             switch (req.method) {
+                
                 case 'POST':  return res.id || res.albertId
                 case 'PUT' :
                 case 'DELETE': 
@@ -89,7 +90,6 @@ module.exports = {
         let oldSend = res.send
         res.send = function (data) {
             if (!req.path.endsWith('health') && res.statusCode < 300) {
-                res.id = data.albertId
                 Print(JSON.stringify(
                     {
                         type: 'activity',
@@ -101,7 +101,7 @@ module.exports = {
                         uri: req.path,
                         ts: Date.now(),
                         user: req.User,
-                        id: extractId(req)(res)
+                        id: extractId(req)(data)
                     }))
             }
             res.send = oldSend // set function back to avoid the 'double-send'

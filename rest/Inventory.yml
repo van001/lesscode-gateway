@@ -419,7 +419,7 @@ components:
           type: integer
     Inventory:
       properties:
-        albertId:
+        id:
           type: string
           description: Unique Identifier of the Inventory which is created.
           readOnly: true
@@ -491,7 +491,7 @@ components:
           readOnly: true
       additionalProperties: false
       required:
-        - albertId
+        - id
         - name
         - status
         - description

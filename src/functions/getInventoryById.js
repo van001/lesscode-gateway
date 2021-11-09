@@ -1,6 +1,6 @@
 module.exports = async function (req, res) {
     const data = {
-        albertId: req.params.id,
+        id: req.params.id,
         name: 'PVC Gloves',
         description: 'Safety Equipment',
         companyId: 'COM1',
