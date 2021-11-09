@@ -69,21 +69,29 @@ module.exports = {
         next()
     },
     Activity: (req, res, next) => {
-        const extractId = req => res => {
-            
+        extractAction = req  => {
             switch (req.method) {
-                
-                case 'POST':  return res.id || res.albertId
-                case 'PUT' :
-                case 'DELETE': 
-                case 'GET': { 
-                                if(req.params){
-                                    return req.params.id || req.params.albertId
-                                }else if(req.query){
-                                    return req.query.id || req.query.albertId
-                                }
-                           }
-                case 'PATCH': return req.query.id || req.query.albertId
+                case 'POST': return "created"
+                case 'DELETE': return "deleted"
+                case 'GET': return 'viewed'
+                case 'PUT': return 'replaced'
+                case 'PATCH': return (req.body.action) ? req.body.action : 'updated'
+            }
+        }
+
+        const extractId = req => res => {
+            switch (req.method) {
+                case 'POST': return res.id || res.albertId
+                case 'PUT':
+                case 'DELETE':
+                case 'GET': {
+                    if (req.params) {
+                        return req.params.id || req.params.albertId
+                    } else if (req.query) {
+                        return req.query.id || req.query.albertId
+                    }
+                }
+                case 'PATCH': return req.params.id || req.params.albertId
             }
 
         }
@@ -97,11 +105,12 @@ module.exports = {
                         env: process.env.ENV,
                         region: process.env.REGION,
                         name: process.env.NAME,
-                        method: req.method,
+                        action: extractAction(req),
                         uri: req.path,
                         ts: Date.now(),
                         user: req.User,
-                        id: extractId(req)(data)
+                        id: extractId(req)(data),
+                        data: req.body
                     }))
             }
             res.send = oldSend // set function back to avoid the 'double-send'
@@ -116,9 +125,9 @@ module.exports = {
         const ReturnError = res => async err => { const e = await err; res.status(e.status).send(e) }
         const Next = async () => next()
         const ValidateJWT = secret => async token => {
-            const ThrowInvalidTokenErrorError = err => { throw { status: 401, title: 'Unauthorized.', errors: [{ msg: 'Invalid token.', category: 'Authorization' }], trace : err.toString()} }
+            const ThrowInvalidTokenErrorError = err => { throw { status: 401, title: 'Unauthorized.', errors: [{ msg: 'Invalid token.', category: 'Authorization' }], trace: err.toString() } }
             const Decode = secret => async token => jwt.decode(token, secret, false, 'HS256')
-                        const AddToRequest = req => async jwt => { req['JWT'] = jwt; req['User'] = { id : jwt.id || jwt.subject, name : jwt.name}; return jwt }
+            const AddToRequest = req => async jwt => { req['JWT'] = jwt; req['User'] = { id: jwt.id || jwt.subject, name: jwt.name }; return jwt }
             return $M(AddToRequest(req), Decode(secret))(token).catch(ThrowInvalidTokenErrorError)
 
         }
