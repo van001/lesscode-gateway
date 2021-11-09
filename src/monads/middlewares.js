@@ -56,7 +56,7 @@ module.exports = {
                     env: process.env.ENV,
                     region: process.env.REGION,
                     name: process.env.NAME,
-                    user: req.user,
+                    user: req.User,
                     method: req.method,
                     useragent: ua.parse(req.headers['user-agent']),
                     url: req.path,
@@ -69,20 +69,20 @@ module.exports = {
         next()
     },
     Activity: (req, res, next) => {
-        const extract = req => res => {
-            console.log(req.method)
+        const extractId = req => res => {
+            
             switch (req.method) {
-                case 'POST': { return { id: res.id || res.albertId } }
+                case 'POST':  return res.id || res.albertId
                 case 'PUT' :
                 case 'DELETE': 
                 case 'GET': { 
                                 if(req.params){
-                                    return {id : req.params.id || req.params.albertId}
+                                    return req.params.id || req.params.albertId
                                 }else if(req.query){
-                                    return {id : req.query.id || req.query.albertId}
+                                    return req.query.id || req.query.albertId
                                 }
                            }
-                case 'PATCH': { return req.body }
+                case 'PATCH': return req.query.id || req.query.albertId
             }
 
         }
@@ -98,10 +98,10 @@ module.exports = {
                         region: process.env.REGION,
                         name: process.env.NAME,
                         method: req.method,
-                        url: req.path,
+                        uri: req.path,
                         ts: Date.now(),
-                        user: req.user,
-                        data: extract(req)(res)
+                        user: req.User,
+                        id: extractId(req)(res)
                     }))
             }
             res.send = oldSend // set function back to avoid the 'double-send'
@@ -116,11 +116,9 @@ module.exports = {
         const ReturnError = res => async err => { const e = await err; res.status(e.status).send(e) }
         const Next = async () => next()
         const ValidateJWT = secret => async token => {
-            //console.log(secret)
-            //console.log(token)
-            const ThrowInvalidTokenErrorError = err => { throw { status: 401, title: 'Unauthorized.', errors: [{ msg: 'Invalid token.', category: 'Authorization' }] } }
+            const ThrowInvalidTokenErrorError = err => { throw { status: 401, title: 'Unauthorized.', errors: [{ msg: 'Invalid token.', category: 'Authorization' }], trace : err.toString()} }
             const Decode = secret => async token => jwt.decode(token, secret, false, 'HS256')
-            const AddToRequest = req => async jwt => { req['JWT'] = jwt; return jwt }
+                        const AddToRequest = req => async jwt => { req['JWT'] = jwt; req['User'] = { id : jwt.id || jwt.subject, name : jwt.name}; return jwt }
             return $M(AddToRequest(req), Decode(secret))(token).catch(ThrowInvalidTokenErrorError)
 
         }
@@ -139,7 +137,7 @@ module.exports = {
         req['Logger'] = {
             Info: async (msg) => $M(JSON.parse, Print)(JSON.stringify({ type: 'info', uuid: req.uuid, name: process.env.NAME, method: req.method, url: req.path, operationid: req.app.settings.operationid, msg: msg, ts: Date.now() })),
             Warning: async (msg) => $M(JSON.parse, Print)(JSON.stringify({ type: 'warning', uuid: req.uuid, name: process.env.NAME, method: req.method, url: req.path, operationid: req.app.settings.operationid, msg: msg, ts: Date.now() })),
-            Error: async (err) => await $M(JSON.parse, Print)(JSON.stringify({ type: 'error', uuid: req.uuid, name: process.env.NAME, method: req.method, url: req.path, operationid: req.app.settings.operationid, status: err.status, title: err.title, category: err.category, errors: err.errors, trace: err.trace, ts: Date.now() }))
+            Error: async (err) => await $M(JSON.parse, Print)(JSON.stringify({ type: 'error', uuid: req.uuid, name: process.env.NAME, method: req.method, url: req.path, operationid: req.app.settings.operationid, status: err.status, user: req.User, title: err.title, category: err.category, errors: err.errors, trace: err.trace, ts: Date.now() }))
         }
         next()
     },

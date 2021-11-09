@@ -12,5 +12,5 @@ module.exports = {
         autoValidation : true
     },
     ZENDESK_TOKEN : `${process.env.ZENDESK_TOKEN}`,
-    JWT_TOKEN_SECRET : `${process.env.SCIM_JWT_TOKEN}`
+    JWT_TOKEN_SECRET : `${process.env.JWT_TOKEN_SECRET}`
 }

@@ -90,6 +90,8 @@ paths:
           $ref: "#/components/responses/NotFound"
         500:
           $ref: "#/components/responses/InternalServerError"
+      security:
+        - jwt: []
       
     get:
       summary: For fetching list of Inventories
