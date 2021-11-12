@@ -103,7 +103,7 @@ const Express = config => async specs => {
         }
         return (config.rest.schemas) ? express.get(`${config.rest.schemas[spec.info.title]}/:name`, execute(spec)) : express
     }
-    const RegisterOpenAPIValidator = config => spec => async express => {  (config.rest.autoValidation) ? express.use(OpenApiValidator.middleware({ apiSpec: spec, validateRequests: true, validateResponses: true })) : ''; return express }
+    const RegisterOpenAPIValidator = config => spec => async express =>  (config.rest.autoValidation == undefined || config.rest.autoValidation) ? express.use(OpenApiValidator.middleware({ apiSpec: spec, validateRequests: true, validateResponses: true })) : express 
 
     const RegisterMiddlewares = config => async express => {
     

@@ -8,8 +8,7 @@ module.exports = {
         },
         schemas : {
             'Inventory Service' : '/api/v3/inventories/schema'
-        },
-        autoValidation : true
+        }
     },
     ZENDESK_TOKEN : `${process.env.ZENDESK_TOKEN}`,
     JWT_TOKEN_SECRET : `${process.env.JWT_TOKEN_SECRET}`
