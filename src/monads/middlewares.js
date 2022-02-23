@@ -79,22 +79,8 @@ module.exports = {
             }
         }
 
-        const extractId = req => res => {
-            switch (req.method) {
-                case 'POST': return res.id || res.albertId
-                case 'PUT':
-                case 'DELETE':
-                case 'GET': {
-                    if (req.params) {
-                        return req.params.id || req.params.albertId
-                    } else if (req.query) {
-                        return req.query.id || req.query.albertId
-                    }
-                }
-                case 'PATCH': return req.params.id || req.params.albertId
-            }
-
-        }
+        const extractId = req => res => id => res[id] || req.params[id] || req.query[id] ||  (req.JWT)? req.JWT[id] : null
+    
         let oldSend = res.send
         res.send = function (data) {
             if (!req.path.endsWith('health') && res.statusCode < 300) {
@@ -108,8 +94,10 @@ module.exports = {
                         action: extractAction(req),
                         uri: req.path,
                         ts: Date.now(),
+                        tenantId : extractId(req)(data)('tenantId'),
                         user: req.User,
-                        id: extractId(req)(data),
+                        id: extractId(req)(data)('id') || extractId(req)(data)('albertId'),
+                        parentId: extractId(req)(data)('parentId'),
                         data: req.body
                     }))
             }
