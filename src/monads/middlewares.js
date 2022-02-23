@@ -79,7 +79,7 @@ module.exports = {
             }
         }
 
-        const extractId = req => res => id => res[id] || req.params[id] || req.query[id] ||  (req.JWT)? req.JWT[id] : null
+        const extractId = req => res => id => res[id] || req.params[id] || req.query[id]
     
         let oldSend = res.send
         res.send = function (data) {
