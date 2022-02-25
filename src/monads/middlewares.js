@@ -93,7 +93,7 @@ module.exports = {
                         name: process.env.NAME,
                         action: extractAction(req),
                         uri: req.path,
-                        ts: Date.now(),
+                        created: Date.now(),
                         tenantId : extractId(req)(req.JWT)('tenantId'),
                         user: req.User,
                         id: extractId(req)(data)('id') || extractId(req)(data)('albertId'),
