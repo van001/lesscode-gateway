@@ -79,7 +79,7 @@ module.exports = {
             }
         }
 
-        const extractId = req => res => id => res[id] || req.params[id] || req.query[id]
+        const extractId = req => res => id => res[id] || req.params[id] || req.query[id] || req.headers[id]
     
         let oldSend = res.send
         res.send = function (data) {
@@ -98,7 +98,8 @@ module.exports = {
                         user: req.User,
                         id: extractId(req)(data)('id') || extractId(req)(data)('albertId'),
                         parentId: extractId(req)(data)('parentId'),
-                        data: req.body
+                        data: req.body,
+                        expiresAt : extractId(req)(data)('x-albert-expires') ? Date.now()+3600000 : null
                     }))
             }
             res.send = oldSend // set function back to avoid the 'double-send'
