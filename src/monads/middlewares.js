@@ -94,7 +94,7 @@ module.exports = {
                         action: extractAction(req),
                         uri: req.path,
                         created: Date.now(),
-                        tenantId : extractId(req)(req.JWT)('tenantId'),
+                        tenantId : extractId(req)((req.JWT)? req.JWT : {})('tenantId'),
                         user: req.User,
                         id: extractId(req)(data)('id') || extractId(req)(data)('albertId'),
                         parentId: extractId(req)(data)('parentId'),
