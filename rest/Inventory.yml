@@ -42,7 +42,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Inventory"
+              type: array
+              items:
+                $ref: "#/components/schemas/Inventory"
             examples: # Child of media type
               NewInventory: # Example 1
                 value:
@@ -62,7 +64,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Inventory"
+                type: array
+                items:
+                  $ref: "#/components/schemas/Inventory"
               examples:
                 Success:
                   value:

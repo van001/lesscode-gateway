@@ -1,7 +1,7 @@
 /**
  * Conatin all the defualt middleware definition
  */
-const { $M, Print, lmap } = require('lesscode-fp')
+const { $M, Print, lmap, lmapA} = require('lesscode-fp')
 const { v1: uuidv1 } = require('uuid')
 const cors = require('cors')
 const bodyParser = require('body-parser')
@@ -81,7 +81,8 @@ module.exports = {
 
         const extractId = req => res => id => res[id] || req.params[id] || req.query[id] || req.headers[id]
 
-        const printActivity = req => data => {
+        const printActivity = req => lst => index => data=> {
+        
             if (!req.path.endsWith('health') && res.statusCode < 300) {
                 Print(JSON.stringify(
                     {
@@ -97,7 +98,7 @@ module.exports = {
                         user: req.User,
                         id: extractId(req)(data)('id') || extractId(req)(data)('albertId'),
                         parentId: extractId(req)(data)('parentId'),
-                        data: req.body,
+                        data: (index != -1) ? req.body[index] : req.body || {},
                         expiresAt : extractId(req)(data)('x-albert-expires') ? Date.now()+3600000 : null
                     }))
             }
@@ -105,7 +106,7 @@ module.exports = {
     
         let oldSend = res.send
         res.send = function (data) {
-            ((req.method == 'POST' || req.method == 'PUT') && Array.isArray(data)) ? lmap(printActivity(req))(data) : printActivity(req)(data)
+            ((req.method == 'POST' || req.method == 'PUT') && Array.isArray(data)) ? lmapA(printActivity(req))(data) : printActivity(req)(data)(-1)(data)
             res.send = oldSend // set function back to avoid the 'double-send'
             return res.send(data) // just call as normal with data
         }
