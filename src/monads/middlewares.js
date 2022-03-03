@@ -80,9 +80,8 @@ module.exports = {
         }
 
         const extractId = req => res => id => res[id] || req.params[id] || req.query[id] || req.headers[id]
-    
-        let oldSend = res.send
-        res.send = function (data) {
+
+        const printActivity = req => data => {
             if (!req.path.endsWith('health') && res.statusCode < 300) {
                 Print(JSON.stringify(
                     {
@@ -102,6 +101,11 @@ module.exports = {
                         expiresAt : extractId(req)(data)('x-albert-expires') ? Date.now()+3600000 : null
                     }))
             }
+        }
+    
+        let oldSend = res.send
+        res.send = function (data) {
+            ((req.method == 'POST' || req.method == 'PUT') && Array.isArray(data)) ? lmap(printActivity(req)) : printActivity(req)(data)
             res.send = oldSend // set function back to avoid the 'double-send'
             return res.send(data) // just call as normal with data
         }
