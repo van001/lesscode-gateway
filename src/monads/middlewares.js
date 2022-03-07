@@ -79,7 +79,7 @@ module.exports = {
             }
         }
 
-        const extractId = req => res => id => res[id] || req.params[id] || req.query[id] || req.headers[id]
+        const extractId = req => res => id => res ? res[id] : null || req.params[id] || req.query[id] || req.headers[id]
 
         const printActivity = req => lst => index => data=> {
         
