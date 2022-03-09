@@ -8,6 +8,6 @@ module.exports = async function (req, res) {
 
         ]
     }
-    
+    req.Logger.Info('Get Inv...')
     res.status(200).send(data)
 }

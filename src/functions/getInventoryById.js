@@ -12,5 +12,6 @@ module.exports = async function (req, res) {
         createdAt: '2021-07-29T20:20:20.041Z',
         createdBy: "Neelesh V"
     }
+    req.Logger.Info('Get Inv...')
     res.status(200).send(data)
 }
