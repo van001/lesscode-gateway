@@ -11,13 +11,13 @@ const load = Memoize((path) => $(require)(path)) //memoize
 const OpenApiValidator = require('express-openapi-validator')
 const { formatErrors, formatTitle } = require('../monads/error')
 const { BodyParserJSON, BodyParserURLEncoded, UUID, Start, End, Metrics,
-    Request, Activity, Security, Logger, CORS, Compression } = require('./middlewares')
+    Request, Activity, Filter, Security, Logger, CORS, Compression } = require('./middlewares')
 const LatencyStart = Start('latency')
 const LatencyEnd = End('latency')
 const swaggerUi = require('swagger-ui-express')
 
 //defualt middlewares
-const middlewares = { BodyParserJSON, BodyParserURLEncoded, UUID, LatencyStart, LatencyEnd, Metrics, Request, Activity, Logger, CORS, Compression }
+const middlewares = { BodyParserJSON, BodyParserURLEncoded, UUID, LatencyStart, LatencyEnd, Metrics, Request, Filter, Activity, Logger, CORS, Compression }
 
 /**
  * Express monad. Accepts the config and openspec3x in json format.

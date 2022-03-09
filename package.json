@@ -28,7 +28,7 @@
     "express": "^4.17.1",
     "express-openapi-validator": "^4.12.14",
     "jwt-simple": "^0.5.6",
-    "lesscode-fp": "^1.0.41",
+    "lesscode-fp": "^1.0.44",
     "save": "^2.4.0",
     "swagger-ui-express": "^4.1.4",
     "useragent": "^2.3.0",

@@ -1,7 +1,7 @@
 /**
  * Conatin all the defualt middleware definition
  */
-const { $M, Print, lmap, lmapA} = require('lesscode-fp')
+const { $M, Print, lmap, lmapA, mget, mslice } = require('lesscode-fp')
 const { v1: uuidv1 } = require('uuid')
 const cors = require('cors')
 const bodyParser = require('body-parser')
@@ -69,7 +69,7 @@ module.exports = {
         next()
     },
     Activity: (req, res, next) => {
-        extractAction = req  => {
+        extractAction = req => {
             switch (req.method) {
                 case 'POST': return "created"
                 case 'DELETE': return "deleted"
@@ -81,8 +81,8 @@ module.exports = {
 
         const extractId = req => res => id => res ? res[id] : null || req.params[id] || req.query[id] || req.headers[id]
 
-        const printActivity = req => lst => index => data=> {
-        
+        const printActivity = req => lst => index => data => {
+
             if (!req.path.endsWith('health') && res.statusCode < 300) {
                 Print(JSON.stringify(
                     {
@@ -94,24 +94,37 @@ module.exports = {
                         action: extractAction(req),
                         uri: req.path,
                         created: Date.now(),
-                        tenantId : extractId(req)((req.JWT)? req.JWT : {})('tenantId'),
+                        tenantId: extractId(req)((req.JWT) ? req.JWT : {})('tenantId'),
                         user: req.User,
                         id: extractId(req)(data)('id') || extractId(req)(data)('albertId'),
                         parentId: extractId(req)(data)('parentId'),
                         data: (index != -1) ? req.body[index] : req.body || {},
-                        expiresAt : extractId(req)(data)('x-albert-expires') ? Date.now()+3600000 : null
+                        expiresAt: extractId(req)(data)('x-albert-expires') ? Date.now() + 3600000 : null
                     }))
             }
         }
-    
+
         let oldSend = res.send
         res.send = function (data) {
             ((req.method == 'POST' || req.method == 'PUT') && Array.isArray(data)) ? lmapA(printActivity(req))(data) : printActivity(req)(data)(-1)(data)
             res.send = oldSend // set function back to avoid the 'double-send'
-            return res.send(data) // just call as normal with data
+            res.send(data) // just call as normal with data
         }
         next()
 
+    },
+    Filter: (req, res, next) => {
+        let oldSend = res.send
+        res.send = function (data) {
+            if (req.query.filter && data && data.Items) {
+                data.Items = lmap(mslice(req.query.filter))(data.Items)
+            } else if (req.query.filter && typeof data === 'object') {
+                data = res.send(mslice(req.query.filter)(data))
+            }
+            res.send = oldSend // set function back to avoid the 'double-send'
+            res.send(data) // just call as normal with data
+        }
+        next()
     },
     Security: config => types => (req, res, next) => {
         const list = (types) ? types : []

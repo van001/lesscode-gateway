@@ -132,6 +132,14 @@ paths:
             maxItems: 5
           in: query
           required: false
+        - name: filter
+          description: name of the Inventory , can be list of 5 array if exactMatch is set to false
+          schema:
+            type: array
+            items:
+              type: string
+          in: query
+          required: false
         - name: category
           description: category of the inventory
           schema:

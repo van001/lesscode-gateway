@@ -2188,9 +2188,9 @@
   "version" "3.2.2"
 
 "follow-redirects@^1.14.0":
-  "integrity" "sha512-fhUl5EwSJbbl8AR+uYL2KQDxLkdSjZGR36xy46AO7cOMTrCMON6Sa28FmAnC2tRTDbd/Uuzz3aJBv7EBN7JH8A=="
-  "resolved" "https://registry.npmjs.org/follow-redirects/-/follow-redirects-1.14.6.tgz"
-  "version" "1.14.6"
+  "integrity" "sha512-MQDfihBQYMcyy5dhRDJUHcw7lb2Pv/TuE6xP1vyraLukNDHKbDxDNaOE3NbCAdKQApno+GPRyo1YAp89yCjK4w=="
+  "resolved" "https://registry.npmjs.org/follow-redirects/-/follow-redirects-1.14.9.tgz"
+  "version" "1.14.9"
 
 "for-in@^1.0.2":
   "integrity" "sha1-gQaNKVqBQuwKxybG4iAMMPttXoA="
@@ -3331,10 +3331,10 @@
   "resolved" "https://registry.npmjs.org/kleur/-/kleur-3.0.3.tgz"
   "version" "3.0.3"
 
-"lesscode-fp@^1.0.41":
-  "integrity" "sha512-BzjXxKZGzWhfprmXBhQba+IG0qp8GvoK8rEwgzl4mcZOGdbqicpeLRo4WbJH9O6lIj60Oq1YjVUnOk/5/Q76pg=="
-  "resolved" "https://registry.npmjs.org/lesscode-fp/-/lesscode-fp-1.0.41.tgz"
-  "version" "1.0.41"
+"lesscode-fp@^1.0.44":
+  "integrity" "sha512-XZUXdjXe/hd1kZzQRRu/D45PU8b6O+fHr43CxtR3rZw0qYTvsQn/Fp9qwGnb6gWXfZpNzZYXZ3wYdWsTZO9hag=="
+  "resolved" "https://registry.npmjs.org/lesscode-fp/-/lesscode-fp-1.0.44.tgz"
+  "version" "1.0.44"
   dependencies:
     "axios" "^0.21.4"
 
