@@ -9,6 +9,6 @@ module.exports = async function (req, res) {
         ]
     }
     req.Logger.Info('Get Inv...')
-    throw "Erro..."
+    //throw "Erro..."
     res.status(200).send(data)
 }

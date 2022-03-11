@@ -119,9 +119,9 @@ module.exports = {
     Filter: (req, res, next) => {
         let oldSend = res.send
         res.send = function (data) {
-            if (req.query.filter && res.status < 300 && data && data.Items) {
+            if (req.query.filter && res.statusCode < 300 && data && data.Items) {
                 data.Items = lmap(mslice(req.query.filter))(data.Items)
-            } else if (req.query.filter && res.status < 300  && data && typeof data === 'object') {
+            } else if (req.query.filter && res.statusCode < 300  && data && typeof data === 'object') {
                 console.log(data)
                 data = mslice(req.query.filter)(data)
             }
