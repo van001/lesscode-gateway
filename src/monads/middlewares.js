@@ -11,7 +11,7 @@ const dotenv = require('dotenv').config()
 const compression = require('compression')
 
 module.exports = {
-    BodyParserJSON: bodyParser.json(),
+    BodyParserJSON: bodyParser.json({limit : 1000000}),
     BodyParserURLEncoded: bodyParser.urlencoded({ extended: false }),
     UUID: (req, res, next) => { req.uuid = req.headers.uuid || uuidv1(); res.header('uuid', req.uuid); next() },
     Start: label => (req, res, next) => { if (!req.timers) req.timers = {}; { const start = Date.now(); req.timers[label] = { start, end: start } }; if (next) { next() } }, // Timer start
