@@ -3,3 +3,5 @@ coverage
 yarn-error.log
 *.config.js
 .env
+yarn.lock
+package-lock.json
