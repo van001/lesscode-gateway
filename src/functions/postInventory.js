@@ -5,5 +5,6 @@ async function epochTime() {
 }
 module.exports = async function (req, res) {
     const add = { id: "123", status : "active", createdBy : "Neelesh V"}
+    console.log(add)
     res.status(201).send([{ ...req.body[0], ...add }])
 }
