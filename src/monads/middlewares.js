@@ -109,7 +109,7 @@ module.exports = {
 
         let oldSend = res.send
         res.send = function (data) {
-            ((req.method == 'POST' || req.method == 'PUT') && Array.isArray(data)) ? lmapA(printActivity(req))(data) : printActivity(req)(data)(-1)(data)
+            ((req.method == 'POST' || req.method == 'PUT' || req.method == 'PATCH') && Array.isArray(data)) ? lmapA(printActivity(req))(data) : printActivity(req)(data)(-1)(data)
             res.send = oldSend // set function back to avoid the 'double-send'
             res.send(data) // just call as normal with data
         }
