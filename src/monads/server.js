@@ -39,7 +39,7 @@ const Express = config => async specs => {
             RegisterOpenAPIValidator(config)(spec)(express)
             // Endpoint execution
             const expRegEndpoint = spec => path => method => express => {
-                const operationid = spec.paths[path][method].operationId
+                const operationd = spec.paths[path][method].operationId
 
                 const Exec = req => res => async func => load((func))(req, res)
 
@@ -87,7 +87,7 @@ const Express = config => async specs => {
 
     const RegisterSwaggerUI = config => spec => express => {
         const register = url => spec => {
-            (url) ? express.use(url,swaggerUi.serve, swaggerUi.setup(spec)) : ""
+           // (url) ? express.use(url,swaggerUi.serve, swaggerUi.setup(spec)) : ""
             return express
         }
         return (config.rest.docs) ? register(config.rest.docs[spec.info.title])(spec) : express
