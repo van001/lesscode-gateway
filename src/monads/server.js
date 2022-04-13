@@ -39,7 +39,7 @@ const Express = config => async specs => {
             RegisterOpenAPIValidator(config)(spec)(express)
             // Endpoint execution
             const expRegEndpoint = spec => path => method => express => {
-                const operationd = spec.paths[path][method].operationId
+                const operationid = spec.paths[path][method].operationId
 
                 const Exec = req => res => async func => load((func))(req, res)
 
