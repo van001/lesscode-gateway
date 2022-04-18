@@ -1,0 +1,16 @@
+
+  <iframe width="100%" height="100%"></iframe>
+  <script>
+    async function getSrc() {
+      const res = await fetch("http://localhost:8090/api/v3/inventories/spec", {
+        method: 'GET',
+        headers: {
+          'Authorization' : 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MzQsImVtYWlsIjoiZW5naW5lZXJpbmdAYWxiZXJ0aW52ZW50LmNvbSIsInVzZXJUeXBlSWQiOjEsIm5hbWUiOiJTdXBlciBBZG1pbiIsImlzVG9rZW5WZXJpZmllZCI6MSwidGVuYW50SWQiOiJURU4xIiwiaWF0IjoxNjQ1NTg4NTYzfQ.ntO8S_mGiOLEcg82lPjFwDfvteMPxy79MYWjEyVeq8s'
+        }
+      })
+      const blob = await res.blob();
+      const urlObject = URL.createObjectURL(blob);
+      document.querySelector('iframe').setAttribute("src", urlObject)
+    }
+    getSrc();
+</script>

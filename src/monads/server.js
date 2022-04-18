@@ -28,14 +28,16 @@ const middlewares = { BodyParserJSON, BodyParserURLEncoded, UUID, LatencyStart, 
 const Express = config => async specs => {
 
     const RegisterSpecs = config => specs => async express => {
+        //express.use('/api/v3/inventories/spec',require('express').static('public'))
+
 
         // Load Specs, Register endpoints
         const RegisterSpec = config => express => async spec => {
-            
+
             RegisterSwaggerSchema(config)(spec)(express)
             RegisterSwaggerUI(config)(spec)(express)
-        
-            
+
+
             RegisterOpenAPIValidator(config)(spec)(express)
             // Endpoint execution
             const expRegEndpoint = spec => path => method => express => {
@@ -86,28 +88,29 @@ const Express = config => async specs => {
     })
 
     const RegisterSwaggerUI = config => spec => express => {
+        
         const register = url => spec => {
-           // (url) ? express.use(url,swaggerUi.serve, swaggerUi.setup(spec)) : ""
+            (url) ? express.use(url, Security(config)([{ jwt: [] }]), swaggerUi.serve, swaggerUi.setup(spec)) : ""
             return express
         }
         return (config.rest.docs) ? register(config.rest.docs[spec.info.title])(spec) : express
     }
-    
+
     const RegisterSwaggerSchema = config => spec => express => {
-        const execute = spec => async function(req, res) {
-                //console.log(req)
-                const schema = spec['components']['schemas'][req.params.name]
-                const returnSchema = res => schema => res.send(schema)
-                const returnError = res => res.send(404)
-                return (schema) ?  returnSchema(res)(schema): returnError(res)
+        const execute = spec => async function (req, res) {
+            //console.log(req)
+            const schema = spec['components']['schemas'][req.params.name]
+            const returnSchema = res => schema => res.send(schema)
+            const returnError = res => res.send(404)
+            return (schema) ? returnSchema(res)(schema) : returnError(res)
         }
         return (config.rest.schemas) ? express.get(`${config.rest.schemas[spec.info.title]}/:name`, execute(spec)) : express
     }
-    const RegisterOpenAPIValidator = config => spec => async express =>  (config.rest.autoValidation == undefined || config.rest.autoValidation) ? express.use(OpenApiValidator.middleware({ apiSpec: spec, validateRequests: true, validateResponses: true })) : express 
+    const RegisterOpenAPIValidator = config => spec => async express => (config.rest.autoValidation == undefined || config.rest.autoValidation) ? express.use(OpenApiValidator.middleware({ apiSpec: spec, validateRequests: true, validateResponses: true })) : express
 
     const RegisterMiddlewares = config => async express => {
-    
-       
+
+
         const RegisterMiddleware = express => middleware => express.use(middleware)
         const RegisterDefaultMiddlewares = async express => { $(lmap(RegisterMiddleware(express)), m2valList)(middlewares); return express }// register default middlewares
         const RegisterCustomMiddlewares = async express => { $(lmap(RegisterMiddleware(express)), m2valList)(config.middlewares || {}); return express }// add new / overrite 

@@ -30,7 +30,19 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Health"
-
+  #/api/v3/inventories/spec:
+  #  get:
+  #    summary: Healthcheck verification.
+  #    operationId: getSpec
+  #    tags:
+  #      - Health Check
+  #    responses:
+  #      "200":
+  #        description: successful operation.
+  #       content:
+  #          application/json:
+  #            schema:
+  #              type: object
   /api/v3/inventories:
     post:
       summary: For creating new inventory

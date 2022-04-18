@@ -11,7 +11,7 @@ const dotenv = require('dotenv').config()
 const compression = require('compression')
 
 module.exports = {
-    BodyParserJSON: bodyParser.json({limit : 1000000}),
+    BodyParserJSON: bodyParser.json({ limit: 1000000 }),
     BodyParserURLEncoded: bodyParser.urlencoded({ extended: false }),
     UUID: (req, res, next) => { req.uuid = req.headers.uuid || uuidv1(); res.header('uuid', req.uuid); next() },
     Start: label => (req, res, next) => { if (!req.timers) req.timers = {}; { const start = Date.now(); req.timers[label] = { start, end: start } }; if (next) { next() } }, // Timer start
@@ -30,7 +30,7 @@ module.exports = {
                             method: req.method,
                             status: res.statusCode,
                             url: req.path,
-                            operationId : req.operationid,
+                            operationId: req.operationid,
                             length: res.get('content-length'),
                             latency: (req.timers && req.timers.latency) ? req.timers.latency.end - req.timers.latency.start : 0,
                             latencyin: (req.timers && req.timers.latencyin) ? req.timers.latencyin.end - req.timers.latencyin.start : 0,
@@ -61,7 +61,7 @@ module.exports = {
                     method: req.method,
                     useragent: ua.parse(req.headers['user-agent']),
                     url: req.path,
-                    operationId : req.operationid,
+                    operationId: req.operationid,
                     query: req.query,
                     body: postBody,
                     length: req.get('content-length'),
@@ -81,7 +81,7 @@ module.exports = {
             }
         }
 
-        const extractId = req => res => id => (res ? res[id] : null ) || req.params[id] || req.query[id] || req.headers[id]
+        const extractId = req => res => id => (res ? res[id] : null) || req.params[id] || req.query[id] || req.headers[id]
 
         const printActivity = req => lst => index => data => {
 
@@ -95,7 +95,7 @@ module.exports = {
                         name: process.env.NAME,
                         action: extractAction(req),
                         uri: req.path,
-                        operationId : req.operationid,
+                        operationId: req.operationid,
                         created: Date.now(),
                         tenantId: extractId(req)((req.JWT) ? req.JWT : {})('tenantId'),
                         user: req.User,
@@ -109,11 +109,11 @@ module.exports = {
 
         let oldSend = res.send
         res.send = function (data) {
-            switch(req.method) {
-                case 'PATCH' : (Array.isArray(req.body)) ? lmapA(printActivity(req))(req.body) : printActivity(req)(data)(-1)(data) ; break
-                case 'POST': 
-                case 'PUT' : (Array.isArray(data)) ? lmapA(printActivity(req))(data) : printActivity(req)(data)(-1)(data); break
-                default : printActivity(req)(data)(-1)(data)
+            switch (req.method) {
+                case 'PATCH': (Array.isArray(req.body)) ? lmapA(printActivity(req))(req.body) : printActivity(req)(data)(-1)(data); break
+                case 'POST':
+                case 'PUT': (Array.isArray(data)) ? lmapA(printActivity(req))(data) : printActivity(req)(data)(-1)(data); break
+                default: printActivity(req)(data)(-1)(data)
 
             }
             res.send = oldSend // set function back to avoid the 'double-send'
@@ -127,7 +127,7 @@ module.exports = {
         res.send = function (data) {
             if (req.query.filter && res.statusCode < 300 && data && data.Items) {
                 data.Items = lmap(mslice(req.query.filter))(data.Items)
-            } else if (req.query.filter && res.statusCode < 300  && data && typeof data === 'object') {
+            } else if (req.query.filter && res.statusCode < 300 && data && typeof data === 'object') {
                 console.log(data)
                 data = mslice(req.query.filter)(data)
             }
@@ -137,27 +137,33 @@ module.exports = {
         next()
     },
     Security: config => types => (req, res, next) => {
-        const list = (types) ? types : []
-        if (list.length == 0) return next()
-        const ReturnError = res => async err => { const e = await err; res.status(e.status).send(e) }
-        const Next = async () => next()
-        const ValidateJWT = secret => async token => {
-            const ThrowInvalidTokenErrorError = err => { throw { status: 401, title: 'Unauthorized.', errors: [{ msg: 'Invalid token.', category: 'Authorization' }], trace: err.toString() } }
-            const Decode = secret => async token => jwt.decode(token, secret, false, 'HS256')
-            const AddToRequest = req => async jwt => { req['JWT'] = jwt; req['User'] = { id: jwt.id || jwt.subject, name: jwt.name }; return jwt }
-            return $M(AddToRequest(req), Decode(secret))(token).catch(ThrowInvalidTokenErrorError)
+        if (req.path.endsWith('.js') || req.path.endsWith('.css') | req.path.endsWith('.png')) {
+            next()
+        } else {
+            const list = (types) ? types : []
+            if (list.length == 0) return next()
+            const ReturnError = res => async err => { const e = await err; res.status(e.status).send(e) }
+            const Next = async () => next()
+            const ValidateJWT = secret => async token => {
+                const ThrowInvalidTokenErrorError = err => { throw { status: 401, title: 'Unauthorized.', errors: [{ msg: 'Invalid token.', category: 'Authorization' }], trace: err.toString() } }
+                const Decode = secret => async token => jwt.decode(token, secret, false, 'HS256')
+                const AddToRequest = req => async jwt => { req['JWT'] = jwt; req['User'] = { id: jwt.id || jwt.subject, name: jwt.name }; return jwt }
+                return $M(AddToRequest(req), Decode(secret))(token).catch(ThrowInvalidTokenErrorError)
+
+            }
+            const GetJWT = async req => {
+                const ThrowMissingAuthHeaderError = async () => { throw { status: 401, title: 'Unauthorized.', errors: [{ msg: 'Missing authorization header.', category: 'Authorization' }] } }
+                const ReturnJWT = async req => req.header('Authorization').split(' ')[1]
+                return req.query.token || (req.header('Authorization') ? ReturnJWT(req) : ThrowMissingAuthHeaderError())
+            }
+
+            const ApplySecurity = req => res => sec => {
+                if (sec.jwt) { $M(Next, ValidateJWT(config.JWT_TOKEN_SECRET), GetJWT)(req).catch(ReturnError(res)) }
+            }
+            lmap(ApplySecurity(req)(res))(list)
 
         }
-        const GetJWT = async req => {
-            const ThrowMissingAuthHeaderError = async () => { throw { status: 401, title: 'Unauthorized.', errors: [{ msg: 'Missing authorization header.', category: 'Authorization' }] } }
-            const ReturnJWT = async req => req.header('Authorization').split(' ')[1]
-            return req.header('Authorization') ? ReturnJWT(req) : ThrowMissingAuthHeaderError()
-        }
 
-        const ApplySecurity = req => res => sec => {
-            if (sec.jwt) { $M(Next, ValidateJWT(config.JWT_TOKEN_SECRET), GetJWT)(req).catch(ReturnError(res)) }
-        }
-        lmap(ApplySecurity(req)(res))(list)
     },
     Logger: (req, res, next) => {
         req['Logger'] = {
