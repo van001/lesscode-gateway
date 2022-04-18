@@ -50,6 +50,8 @@ module.exports = {
         }
 
         if (!req.path.endsWith('health')) {
+            let token = req.query.token
+            delete req.query.token
             Print(JSON.stringify(
                 {
                     type: 'request',
@@ -67,7 +69,9 @@ module.exports = {
                     length: req.get('content-length'),
                     ts: Date.now()
                 }))
+                req.query.token = token
         }
+        
         next()
     },
     Activity: (req, res, next) => {
