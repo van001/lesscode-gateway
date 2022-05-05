@@ -75,6 +75,7 @@ module.exports = {
         next()
     },
     Activity: (req, res, next) => {
+        if(req.path.indexOf('/spec') != -1) { next(); return}
         extractAction = req => {
             switch (req.method) {
                 case 'POST': return "created"
@@ -141,6 +142,7 @@ module.exports = {
         next()
     },
     Security: config => types => (req, res, next) => {
+        
         if (req.path.endsWith('.js') || req.path.endsWith('.css') | req.path.endsWith('.png')) {
             next()
         } else {
