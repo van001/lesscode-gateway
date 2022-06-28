@@ -9,7 +9,7 @@ const { $, $M, Wait, lmap, m2valList, lfold, Hint, Print, Memoize, lappend } = r
 const $R = ret => async res => ret
 const load = Memoize((path) => $(require)(path)) //memoize 
 const OpenApiValidator = require('express-openapi-validator')
-const { formatErrors, formatTitle } = require('../monads/error')
+const { formatErrors, formatTitle, getOperationId } = require('../monads/error')
 const { BodyParserJSON, BodyParserURLEncoded, UUID, Start, End, Metrics,
     Request, Activity, Filter, Security, Logger, CORS, Compression } = require('./middlewares')
 const LatencyStart = Start('latency')
@@ -26,7 +26,7 @@ const middlewares = { BodyParserJSON, BodyParserURLEncoded, UUID, LatencyStart, 
  * }
  */
 const Express = config => async specs => {
-
+    const path2OpMap = {}
     const RegisterSpecs = config => specs => async express => {
         //express.use('/api/v3/inventories/spec',require('express').static('public'))
 
@@ -42,7 +42,8 @@ const Express = config => async specs => {
             // Endpoint execution
             const expRegEndpoint = spec => path => method => express => {
                 const operationid = spec.paths[path][method].operationId
-
+                path2OpMap[method+path] = operationid
+                console.log(path2OpMap)
                 const Exec = req => res => async func => load((func))(req, res)
 
                 const expLoadOperation = () => {
@@ -82,7 +83,7 @@ const Express = config => async specs => {
 
     const RegisterErrorHandler = async express => express.use((err, req, res, next) => {
         const ReturnError = res => async err => res.status((err.status) ? err.status : 500).json(err)
-        const LogError = async err => req.Logger.Error(({ status: (err.status) ? err.status : 500, title: (err.title) ? err.title : formatTitle(err), errors: (err.message) ? formatErrors(err) : err.errors, category: 'AUTOVALIDATION' }))
+        const LogError = async err => req.Logger.Error(({ status: (err.status) ? err.status : 500, operationId : getOperationId(req)(path2OpMap)(err), title: (err.title) ? err.title : formatTitle(err), errors: (err.message) ? formatErrors(err) : err.errors, category: 'AUTOVALIDATION' }))
         return LogError(err).then(ReturnError(res))
 
     })

@@ -13,6 +13,8 @@ const formatTitle = err => {
 
 }
 
+const getOperationId = req => map => err =>  map[req.method.toLowerCase()+err.path]
+
 const formatErrors = err => {
     if (err.errors) {
         const formatError = err => {
@@ -43,4 +45,4 @@ const formatErrors = err => {
         return lmap(formatError)(err.errors)
     }
 }
-module.exports = { formatErrors, formatTitle }
+module.exports = { formatErrors, formatTitle,  getOperationId } 
