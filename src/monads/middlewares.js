@@ -9,6 +9,7 @@ const ua = require('useragent')
 const jwt = require('jwt-simple')
 const dotenv = require('dotenv').config()
 const compression = require('compression')
+const helmet  = require('helmet')
 
 module.exports = {
     BodyParserJSON: bodyParser.json({ limit: 1000000 }),
@@ -133,7 +134,7 @@ module.exports = {
             if (req.query.filter && res.statusCode < 300 && data && data.Items) {
                 data.Items = lmap(mslice(req.query.filter))(data.Items)
             } else if (req.query.filter && res.statusCode < 300 && data && typeof data === 'object') {
-                console.log(data)
+                
                 data = mslice(req.query.filter)(data)
             }
             res.send = oldSend // set function back to avoid the 'double-send'
@@ -181,5 +182,6 @@ module.exports = {
         next()
     },
     CORS: cors(),
-    Compression: compression()
+    Compression: compression(),
+    Helmet: helmet()
 }

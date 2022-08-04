@@ -11,13 +11,14 @@ const load = Memoize((path) => $(require)(path)) //memoize
 const OpenApiValidator = require('express-openapi-validator')
 const { formatErrors, formatTitle, getOperationId } = require('../monads/error')
 const { BodyParserJSON, BodyParserURLEncoded, UUID, Start, End, Metrics,
-    Request, Activity, Filter, Security, Logger, CORS, Compression } = require('./middlewares')
+    Request, Activity, Filter, Security, Logger, CORS, Compression, Helmet } = require('./middlewares')
 const LatencyStart = Start('latency')
 const LatencyEnd = End('latency')
 const swaggerUi = require('swagger-ui-express')
 
+
 //defualt middlewares
-const middlewares = { BodyParserJSON, BodyParserURLEncoded, UUID, LatencyStart, LatencyEnd, Metrics, Request, Filter, Activity, Logger, CORS, Compression }
+const middlewares = { BodyParserJSON, BodyParserURLEncoded, UUID, LatencyStart, LatencyEnd, Metrics, Request, Filter, Activity, Logger, CORS, Compression, Helmet }
 
 /**
  * Express monad. Accepts the config and openspec3x in json format.
@@ -43,7 +44,6 @@ const Express = config => async specs => {
             const expRegEndpoint = spec => path => method => express => {
                 const operationid = spec.paths[path][method].operationId
                 path2OpMap[method+path] = operationid
-                console.log(path2OpMap)
                 const Exec = req => res => async func => load((func))(req, res)
 
                 const expLoadOperation = () => {
@@ -111,7 +111,7 @@ const Express = config => async specs => {
 
     const RegisterMiddlewares = config => async express => {
 
-
+        express.disable('x-powered-by')
         const RegisterMiddleware = express => middleware => express.use(middleware)
         const RegisterDefaultMiddlewares = async express => { $(lmap(RegisterMiddleware(express)), m2valList)(middlewares); return express }// register default middlewares
         const RegisterCustomMiddlewares = async express => { $(lmap(RegisterMiddleware(express)), m2valList)(config.middlewares || {}); return express }// add new / overrite 
