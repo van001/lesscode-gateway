@@ -1,5 +1,6 @@
 
 const { lmap } = require('lesscode-fp')
+const validator = require('validator')
 
 const formatTitle = err => {
     switch(err.status){
@@ -24,7 +25,7 @@ const formatErrors = err => {
             if (err.errorCode && err.errorCode.startsWith('pattern')) {
                 return { label : name, msg: 'format is invalid', type : type}
             } else if (err.errorCode && err.errorCode.startsWith('minLength')) {
-                return { label : name, msg: err.message , type : type}
+                return { label : name, msg: validator.escape(err.message ), type : type}
             } else if (err.errorCode && err.errorCode.startsWith('required')) {
                 return { label : name, msg: 'is required', type : type}
             } else if (err.errorCode && err.errorCode.startsWith('format')) {
@@ -32,17 +33,17 @@ const formatErrors = err => {
             } else if (err.errorCode && err.errorCode.startsWith('readOnly')) {
                 return { label : name, msg: 'is read-only', type : type}
             } else if (err.errorCode && err.errorCode.startsWith('enum')) {
-                return { label : name, msg: err.message , type : type}
+                return { label : name, msg: validator.escape(err.message) , type : type}
             } else if (err.errorCode && err.errorCode.startsWith('type')) {
                 return { label : name, msg: err.message , type : type}
             } else if (err.message && err.message.startsWith('unsupported media type')) {
-                return { label : name, msg: err.message , type : type}
+                return { label : name, msg: validator.escape(err.message) , type : type}
             } else {
-                return { msg: err.message , type : type}
+                return { msg: validator.escape(err.message) , type : type}
             }
 
         }
         return lmap(formatError)(err.errors)
     }
 }
-module.exports = { formatErrors, formatTitle,  getOperationId } 
+module.exports = { formatErrors, formatTitle,  getOperationId }
