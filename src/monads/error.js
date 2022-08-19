@@ -35,7 +35,7 @@ const formatErrors = err => {
             } else if (err.errorCode && err.errorCode.startsWith('enum')) {
                 return { label : name, msg: validator.escape(err.message) , type : type}
             } else if (err.errorCode && err.errorCode.startsWith('type')) {
-                return { label : name, msg: err.message , type : type}
+                return { label : name, msg: validator.escape(err.message) , type : type}
             } else if (err.message && err.message.startsWith('unsupported media type')) {
                 return { label : name, msg: validator.escape(err.message) , type : type}
             } else {
