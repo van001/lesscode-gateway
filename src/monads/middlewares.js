@@ -1,7 +1,7 @@
 /**
  * Conatin all the defualt middleware definition
  */
-const { $M, Print, lmap, lmapA, mget, mslice } = require('lesscode-fp')
+const { $M, Print, lmap, lmapA, Wait, mslice } = require('lesscode-fp')
 const { v1: uuidv1 } = require('uuid')
 const cors = require('cors')
 const bodyParser = require('body-parser')
@@ -181,7 +181,7 @@ module.exports = {
         //console.log = req['Logger'].Info
         next()
     },
-    CORS: cors(),
+    CORS: cors( { origin: true ,optionsSuccessStatus: 200}),
     Compression: compression(),
     Helmet: helmet()
 }

@@ -39,7 +39,7 @@ const Express = config => async specs => {
             RegisterSwaggerUI(config)(spec)(express)
 
 
-            RegisterOpenAPIValidator(config)(spec)(express)
+            //RegisterOpenAPIValidator(config)(spec)(express)
             // Endpoint execution
             const expRegEndpoint = spec => path => method => express => {
                 const operationid = spec.paths[path][method].operationId
@@ -58,7 +58,10 @@ const Express = config => async specs => {
                         await $M(Exec(req)(res))(`${process.cwd()}/src/functions/${operationid}`).catch(HandleError(req)(res))
                     }
                 }
-                const expRegPath2Operation = func => { express[method](path.replace('{', ':').replace('}', ''), Security(config)(spec.paths[path][method].security), func); return express }
+                const expRegPath2Operation = func => { express[method](path.replace('{', ':').replace('}', ''), 
+                Security(config)(spec.paths[path][method].security), 
+                OpenApiValidator.middleware({ apiSpec: spec, validateRequests: true, validateResponses: true }),
+                func); return express }
                 return $(Hint(`[${method}][${(operationid) ? 'secured' : 'unsecured'}]${path} => ${operationid}`), expRegPath2Operation, expLoadOperation)()
             }
             const expRegisterPath = cat => val => { expRegEndpoint(cat.spec)(cat.path)(val)(cat.express); return cat }
@@ -110,7 +113,7 @@ const Express = config => async specs => {
     const RegisterOpenAPIValidator = config => spec => async express => (config.rest.autoValidation == undefined || config.rest.autoValidation) ? express.use(OpenApiValidator.middleware({ apiSpec: spec, validateRequests: true, validateResponses: true })) : express
 
     const RegisterMiddlewares = config => async express => {
-
+        
         express.disable('x-powered-by')
         const RegisterMiddleware = express => middleware => express.use(middleware)
         const RegisterDefaultMiddlewares = async express => { $(lmap(RegisterMiddleware(express)), m2valList)(middlewares); return express }// register default middlewares
