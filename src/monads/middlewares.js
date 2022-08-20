@@ -181,7 +181,7 @@ module.exports = {
         //console.log = req['Logger'].Info
         next()
     },
-    CORS: cors( { origin: true ,optionsSuccessStatus: 200}),
+    CORS: cors(),
     Compression: compression(),
     Helmet: helmet()
 }
