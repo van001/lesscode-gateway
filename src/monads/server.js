@@ -117,7 +117,7 @@ const Express = config => async specs => {
         express.disable('x-powered-by')
         const RegisterMiddleware = express => middleware => express.use(middleware)
         const RegisterDefaultMiddlewares = async express => { $(lmap(RegisterMiddleware(express)), m2valList)(middlewares); return express }// register default middlewares
-        const RegisterCustomMiddlewares = async express => { $(lmap(RegisterMiddleware(express)), m2valList)(config.middlewares || {}); return express }// add new / overrite 
+        const RegisterCustomMiddlewares = async express => { $(lmap(RegisterMiddleware(express)), m2valList)(config.rest.middlewares || {}); return express }// add new / overrite 
         return $M(RegisterCustomMiddlewares, RegisterDefaultMiddlewares)(express)
     }
 
