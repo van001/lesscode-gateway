@@ -29,49 +29,45 @@ const middlewares = { BodyParserJSON, BodyParserURLEncoded, UUID, LatencyStart, 
 const Express = config => async specs => {
     const path2OpMap = {}
     const RegisterSpecs = config => specs => async express => {
-        //express.use('/api/v3/inventories/spec',require('express').static('public'))
+       
+        RegisterSwaggerSchema(config)(spec)(express)
+        RegisterSwaggerUI(config)(spec)(express)
 
+        //RegisterOpenAPIValidator(config)(spec)(express)
+        // Endpoint execution
+        const expRegEndpoint = spec => path => method => express => {
+            const operationid = spec.paths[path][method].operationId
+            path2OpMap[method + path] = operationid
+            const Exec = req => res => async func => load((func))(req, res)
 
-        // Load Specs, Register endpoints
-        const RegisterSpec = config => express => async spec => {
-
-            RegisterSwaggerSchema(config)(spec)(express)
-            RegisterSwaggerUI(config)(spec)(express)
-
-
-            //RegisterOpenAPIValidator(config)(spec)(express)
-            // Endpoint execution
-            const expRegEndpoint = spec => path => method => express => {
-                const operationid = spec.paths[path][method].operationId
-                path2OpMap[method+path] = operationid
-                const Exec = req => res => async func => load((func))(req, res)
-
-                const expLoadOperation = () => {
-                    const HandleError = req => res => async err => {
-                        const SendError = res => async err => { res.status((err.status) ? err.status : 500).header('content-type', 'application/json').send(err) }
-                        const LogError = req => async err => req.Logger.Error(err)
-                        return await $M(SendError(res), LogError(req))(err)
-                    }
-                    return async (req, res, next) => {
-                        req['operationid'] = operationid
-                        req['Config'] = config
-                        await $M(Exec(req)(res))(`${process.cwd()}/src/functions/${operationid}`).catch(HandleError(req)(res))
-                    }
+            const expLoadOperation = () => {
+                const HandleError = req => res => async err => {
+                    const SendError = res => async err => { res.status((err.status) ? err.status : 500).header('content-type', 'application/json').send(err) }
+                    const LogError = req => async err => req.Logger.Error(err)
+                    return await $M(SendError(res), LogError(req))(err)
                 }
-                const expRegPath2Operation = func => { express[method](path.replace('{', ':').replace('}', ''), 
-                Security(config)(spec.paths[path][method].security), 
-                OpenApiValidator.middleware({ apiSpec: spec, validateRequests: true, validateResponses: true }),
-                func); return express }
-                return $(Hint(`[${method}][${(operationid) ? 'secured' : 'unsecured'}]${path} => ${operationid}`), expRegPath2Operation, expLoadOperation)()
+                return async (req, res, next) => {
+                    req['operationid'] = operationid
+                    req['Config'] = config
+                    await $M(Exec(req)(res))(`${process.cwd()}/src/functions/${operationid}`).catch(HandleError(req)(res))
+                }
             }
-            const expRegisterPath = cat => val => { expRegEndpoint(cat.spec)(cat.path)(val)(cat.express); return cat }
-            const expRegisterPaths = cat => val => { lfold({ express: cat.express, spec: cat.spec, paths: cat.paths, path: val })(expRegisterPath)(Object.keys(cat.paths[val])); return cat }
-
-            return lfold({ express, spec, paths: spec.paths })(expRegisterPaths)(Object.keys(spec.paths))['express']
+            const expRegPath2Operation = func => {
+                express[method](path.replace('{', ':').replace('}', ''),
+                    Security(config)(spec.paths[path][method].security),
+                    ...m2valList(config.rest.middlewares),
+                    OpenApiValidator.middleware({ apiSpec: spec, validateRequests: true, validateResponses: true }),
+                    func); return express
+            }
+            return $(Hint(`[${method}][${(operationid) ? 'secured' : 'unsecured'}]${path} => ${operationid}`), expRegPath2Operation, expLoadOperation)()
         }
+        const expRegisterPath = cat => val => { expRegEndpoint(cat.spec)(cat.path)(val)(cat.express); return cat }
+        const expRegisterPaths = cat => val => { lfold({ express: cat.express, spec: cat.spec, paths: cat.paths, path: val })(expRegisterPath)(Object.keys(cat.paths[val])); return cat }
 
-        return $M($R(express), Wait, lmap(RegisterSpec(config)(express)))(specs)
+        return lfold({ express, spec, paths: spec.paths })(expRegisterPaths)(Object.keys(spec.paths))['express']
     }
+
+
 
     const RegisterUncaughtExceptionHandler = async express => {
         process.on('uncaughtException', function (err) { console.log({ type: 'crash', name: process.env.NAME, title: 'Crash', trace: err }) })
@@ -86,13 +82,13 @@ const Express = config => async specs => {
 
     const RegisterErrorHandler = async express => express.use((err, req, res, next) => {
         const ReturnError = res => async err => res.status((err.status) ? err.status : 500).json(err)
-        const LogError = async err => req.Logger.Error(({ status: (err.status) ? err.status : 500, operationId : getOperationId(req)(path2OpMap)(err), title: (err.title) ? err.title : formatTitle(err), errors: (err.message) ? formatErrors(err) : err.errors, category: 'AUTOVALIDATION' }))
+        const LogError = async err => req.Logger.Error(({ status: (err.status) ? err.status : 500, operationId: getOperationId(req)(path2OpMap)(err), title: (err.title) ? err.title : formatTitle(err), errors: (err.message) ? formatErrors(err) : err.errors, category: 'AUTOVALIDATION' }))
         return LogError(err).then(ReturnError(res))
 
     })
 
     const RegisterSwaggerUI = config => spec => express => {
-        
+
         const register = url => spec => {
             (url) ? express.use(url, Security(config)([{ jwt: [] }]), swaggerUi.serve, swaggerUi.setup(spec)) : ""
             return express
@@ -113,12 +109,12 @@ const Express = config => async specs => {
     const RegisterOpenAPIValidator = config => spec => async express => (config.rest.autoValidation == undefined || config.rest.autoValidation) ? express.use(OpenApiValidator.middleware({ apiSpec: spec, validateRequests: true, validateResponses: true })) : express
 
     const RegisterMiddlewares = config => async express => {
-        
+
         express.disable('x-powered-by')
         const RegisterMiddleware = express => middleware => express.use(middleware)
         const RegisterDefaultMiddlewares = async express => { $(lmap(RegisterMiddleware(express)), m2valList)(middlewares); return express }// register default middlewares
         const RegisterCustomMiddlewares = async express => { $(lmap(RegisterMiddleware(express)), m2valList)(config.rest.middlewares || {}); return express }// add new / overrite 
-        return $M(RegisterCustomMiddlewares, RegisterDefaultMiddlewares)(express)
+        return $M(RegisterDefaultMiddlewares)(express)
     }
 
     const StartListener = config => async express => express.listen(config.rest.port || 8080, () => Print(`Express listening at : ${config.rest.port || 8080}`))
