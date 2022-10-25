@@ -123,6 +123,7 @@ module.exports = {
 
             }
             res.send = oldSend // set function back to avoid the 'double-send'
+            res.data = data
             res.send(data) // just call as normal with data
         }
         next()
