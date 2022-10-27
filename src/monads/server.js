@@ -58,7 +58,7 @@
                          await $M(Exec(req)(res))(`${process.cwd()}/src/functions/${operationid}`).catch(HandleError(req)(res))
                      }
                  }
-                 const OperationId = operationid => (req, res, next) => { req['operationid'] = operationid; next()}
+                 const OperationId = operationid => (req, res, next) => { req['operationid'] = operationid; req['Config'] = config; next()}
                  const expRegPath2Operation = func => { express[method](path.replace('{', ':').replace('}', ''), 
                  OperationId(operationid),
                  Security(config)(spec.paths[path][method].security), 
