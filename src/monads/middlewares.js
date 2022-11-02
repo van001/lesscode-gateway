@@ -104,6 +104,7 @@ module.exports = {
                         operationId: req.operationid,
                         created: Date.now(),
                         tenantId: extractId(req)((req.JWT) ? req.JWT : {})('tenantId'),
+                        partition: extractId(req)((req.JWT) ? req.JWT : {})('partition'),
                         user: req.User,
                         id: extractId(req)(data)('id') || extractId(req)(data)('albertId'),
                         parentId: extractId(req)(data)('parentId'),
