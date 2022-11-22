@@ -9,6 +9,9 @@ module.exports = {
         },
         schemas : {
             'Inventory Service' : '/api/v3/inventories/schema'
+        },
+        middlewares : {
+            
         }
     },
     ZENDESK_TOKEN : `${process.env.ZENDESK_TOKEN}`,
