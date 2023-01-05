@@ -19,6 +19,8 @@ module.exports = {
     Start: label => (req, res, next) => { if (!req.timers) req.timers = {}; { const start = Date.now(); req.timers[label] = { start, end: start } }; if (next) { next() } }, // Timer start
     End: label => (req, res, next) => { res.on('finish', function () { if (req.timers) { req.timers[label].end = Date.now() } }); if (next) { next() } }, // Timer End
     Metrics: (req, res, next) => {
+        let tenantId = extractId(req)((req.JWT) ? req.JWT : {})('tenantId')
+        let partition = (req.JWT) ? req.JWT.partition : undefined
         res.on('finish',
             () => {
                 if (!req.path.endsWith('health')) {
@@ -30,6 +32,8 @@ module.exports = {
                             region: process.env.REGION,
                             name: process.env.NAME,
                             method: req.method,
+                            tenantId,
+                            partition,
                             status: res.statusCode,
                             url: req.path,
                             operationId: req.operationid,
@@ -178,7 +182,7 @@ module.exports = {
     Logger: (req, res, next) => {
         
         let tenantId = extractId(req)((req.JWT) ? req.JWT : {})('tenantId')
-        let partition = (req.JWT) ? req.JWT.partition : null
+        let partition = (req.JWT) ? req.JWT.partition : undefined
         
         req['Logger'] = {
             Info: async (msg) => $M(JSON.parse, Print)(JSON.stringify({ type: 'info', uuid: req.uuid, name: process.env.NAME, method: req.method, tenantId, partition, url: req.path, operationId: req.operationid, msg: msg, ts: Date.now() })),
