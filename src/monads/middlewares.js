@@ -11,6 +11,7 @@ const dotenv = require('dotenv').config()
 const compression = require('compression')
 const helmet  = require('helmet')
 
+const extractId = req => res => id => (res ? res[id] : null) || req.params[id] || req.query[id] || req.headers[id]
 module.exports = {
     BodyParserJSON: bodyParser.json({ limit: 1000000 }),
     BodyParserURLEncoded: bodyParser.urlencoded({ extended: false }),
@@ -87,7 +88,7 @@ module.exports = {
             }
         }
 
-        const extractId = req => res => id => (res ? res[id] : null) || req.params[id] || req.query[id] || req.headers[id]
+        
 
         const printActivity = req => lst => index => data => {
 
@@ -175,10 +176,14 @@ module.exports = {
 
     },
     Logger: (req, res, next) => {
+        
+        let tenantId = extractId(req)((req.JWT) ? req.JWT : {})('tenantId')
+        let partition = (req.JWT) ? req.JWT.partition : null
+        
         req['Logger'] = {
-            Info: async (msg) => $M(JSON.parse, Print)(JSON.stringify({ type: 'info', uuid: req.uuid, name: process.env.NAME, method: req.method, url: req.path, operationId: req.operationid, msg: msg, ts: Date.now() })),
-            Warning: async (msg) => $M(JSON.parse, Print)(JSON.stringify({ type: 'warning', uuid: req.uuid, name: process.env.NAME, method: req.method, url: req.path, operationId: req.operationid, msg: msg, ts: Date.now() })),
-            Error: async (err) => await $M(JSON.parse, Print)(JSON.stringify({ type: 'error', uuid: req.uuid, name: process.env.NAME, method: req.method, url: req.path, operationId: err.operationId || req.operationid, status: err.status, user: req.User, title: err.title, category: err.category, errors: err.errors, trace: err.trace, ts: Date.now() }))
+            Info: async (msg) => $M(JSON.parse, Print)(JSON.stringify({ type: 'info', uuid: req.uuid, name: process.env.NAME, method: req.method, tenantId, partition, url: req.path, operationId: req.operationid, msg: msg, ts: Date.now() })),
+            Warning: async (msg) => $M(JSON.parse, Print)(JSON.stringify({ type: 'warning', uuid: req.uuid, name: process.env.NAME, method: req.method, tenantId, partition, url: req.path, operationId: req.operationid, msg: msg, ts: Date.now() })),
+            Error: async (err) => await $M(JSON.parse, Print)(JSON.stringify({ type: 'error', uuid: req.uuid, name: process.env.NAME, method: req.method, tenantId, partition, url: req.path, operationId: err.operationId || req.operationid, status: err.status, user: req.User, title: err.title, category: err.category, errors: err.errors, trace: err.trace, ts: Date.now() }))
         }
         //console.log = req['Logger'].Info
         next()
