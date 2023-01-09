@@ -187,7 +187,7 @@ module.exports = {
         req['Logger'] = {
             Info: async (msg) => $M(JSON.parse, Print)(JSON.stringify({ type: 'info', uuid: req.uuid, name: process.env.NAME, method: req.method, tenantId, partition, url: req.path, operationId: req.operationid, msg: msg, ts: Date.now() })),
             Warning: async (msg) => $M(JSON.parse, Print)(JSON.stringify({ type: 'warning', uuid: req.uuid, name: process.env.NAME, method: req.method, tenantId, partition, url: req.path, operationId: req.operationid, msg: msg, ts: Date.now() })),
-            Error: async (err) => await $M(JSON.parse, Print)(JSON.stringify({ type: 'error', uuid: req.uuid, name: process.env.NAME, method: req.method, tenantId, partition, url: req.path, operationId: err.operationId || req.operationid, status: err.status, user: req.User, title: err.title, category: err.category, errors: err.errors, trace: err.trace, ts: Date.now() }))
+            Error: async (err) => await $M(JSON.parse, Print)(JSON.stringify({ type: 'error', uuid: req.uuid, name: process.env.NAME, method: req.method, tenantId, partition, url: req.path, operationId: err.operationId || req.operationid, status: err.status, user: req.User, title: err.title, category: err.category, errors: err.errors || err, trace: err.trace, ts: Date.now() }))
         }
         //console.log = req['Logger'].Info
         next()
