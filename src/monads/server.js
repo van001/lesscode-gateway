@@ -59,7 +59,7 @@
                      }
                  }
                  const OperationId = operationid => (req, res, next) => { req['operationid'] = operationid; req['Config'] = config; next()}
-                 const expRegPath2Operation = func => { express[method](path.replace('{', ':').replace('}', ''), 
+                 const expRegPath2Operation = func => { express[method](path.replace(/{/g, ':').replace(/}/g, ''), 
                  OperationId(operationid),
                  Security(config)(spec.paths[path][method].security), 
                  ...m2valList(config.rest.middlewares || {}),
