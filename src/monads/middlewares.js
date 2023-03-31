@@ -10,7 +10,7 @@ const jwt = require('jwt-simple')
 const dotenv = require('dotenv').config()
 const compression = require('compression')
 const helmet  = require('helmet')
-
+const CORSWhitelist = ['localhost', 'albertinvent', 'albertinventdev','henkel']
 const extractId = req => res => id => (res ? res[id] : null) || req.params[id] || req.query[id] || req.headers[id]
 module.exports = {
     BodyParserJSON: bodyParser.json({ limit: 1000000 }),
@@ -192,7 +192,7 @@ module.exports = {
         //console.log = req['Logger'].Info
         next()
     },
-    CORS: cors(),
+    CORS: cors((origin , cb) => { cb(null, { origin: CORSWhitelist.indexOf(origin)? true : false })}),
     Compression: compression(),
     Helmet: helmet()
 }

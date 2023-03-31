@@ -30,6 +30,43 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Health"
+  /api/v3/login/oauth/token:
+      post:
+        summary: Access Token
+        description : | 
+          OAuth /token endpoint implementation. Supported grant types - client credentials. Use this to obtain Albert JWT for custom Apps using client_id & client_secret.
+          
+        operationId: postToken
+        tags:
+          - Apps
+        requestBody:
+          required: true
+          content:
+            application/x-www-form-urlencoded:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/ClinetCredentials'
+                  - $ref: '#/components/schemas/TokenExchange'
+                discriminator:
+                  propertyName: grant_type
+                  mapping:
+                    client_credentials : '#/components/schemas/ClinetCredentials'
+                    urn:ietf:params:oauth:grant-type:token-exchange : '#/components/schemas/TokenExchange'
+        responses:
+          200:
+            description: Success
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/OAuthResponse'
+          400:
+            $ref: '#/components/responses/BadRequest'     
+          401:
+            $ref: "#/components/responses/Unauthorized"   
+          404:
+            $ref: '#/components/responses/NotFound'  
+          500:
+            $ref: '#/components/responses/InternalServerError'
   #/api/v3/inventories/spec:
   #  get:
   #    summary: Healthcheck verification.
@@ -658,6 +695,78 @@ components:
       additionalProperties: false
       required:
         - data
+    ClinetCredentials:
+        type: object
+        discriminator:
+          propertyName : grant_type
+        properties:
+          grant_type:
+            description: Grant type - client_credentials 
+            type: string
+           
+          client_id:
+            description:  Client id.
+            type: string  
+          client_secret:
+            description:  Client secret.
+            type: string  
+          client_name:
+            type: string
+        additionalProperties: false
+        required:
+          - grant_type
+          - client_id
+          - client_secret
+    TokenExchange:
+      type: object
+      discriminator:
+        propertyName : grant_type
+      properties:
+        grant_type:
+          description: Grant type - token_exchnage
+          type: string
+          
+        subject_token:
+          description:  ID token.
+          type: string  
+        subject_token_type:
+            description:  Subject token type. Supported values - id_token
+            type: string  
+            enum:
+              - id_token
+        subject_name:
+          type: string
+      required:
+        - grant_type
+        - subject_token
+        - subject_token_type
+      additionalProperties: false
+    OAuthResponse:
+        properties:
+          issued_token_type: 
+            type: string
+            enum:
+              - access_token 
+          token_type:
+            description: Token type. Currently we only return Bearer. 
+            type: string
+            enum:
+              - Bearer 
+          access_token:
+            description:  Access token. 
+            type: string  
+          refresh_token:
+            description: Rrefresh token.
+            type: string  
+          expires_in:
+            description:  Access token expiration time in seconds.
+            type: number  
+        required:
+          - issued_token_type
+          - token_type
+          - access_token
+          - refresh_token
+          - expires_in
     Error:
       type: object
       properties:

@@ -8,6 +8,7 @@
  const { $, $M, Wait, lmap, m2valList, lfold, Hint, Print, Memoize, lappend } = require('lesscode-fp')
  const $R = ret => async res => ret
  const load = Memoize((path) => $(require)(path)) //memoize 
+ const OneOfValidator = require('./oneOfalidator')
  const OpenApiValidator = require('express-openapi-validator')
  const { formatErrors, formatTitle, getOperationId } = require('../monads/error')
  const { BodyParserJSON, BodyParserURLEncoded, UUID, Start, End, Metrics,
@@ -63,6 +64,7 @@
                  OperationId(operationid),
                  Security(config)(spec.paths[path][method].security), 
                  ...m2valList(config.rest.middlewares || {}),
+                 OneOfValidator({ apiSpec: spec, validateRequests: true, validateResponses: true }),
                  OpenApiValidator.middleware({ apiSpec: spec, validateRequests: true, validateResponses: true }),
                  func); return express }
                  return $(Hint(`[${method}][${(operationid) ? 'secured' : 'unsecured'}]${path} => ${operationid}`), expRegPath2Operation, expLoadOperation)()
