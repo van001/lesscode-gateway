@@ -112,6 +112,7 @@ module.exports = {
                         partition: (req.JWT) ? req.JWT.partition : null,
                         user: req.User,
                         id: extractId(req)(data)('id') || extractId(req)(data)('albertId'),
+                        class : req.ACL ? req.ACL.class : null,
                         parentId: extractId(req)(data)('parentId'),
                         data: (index != -1) ? req.body[index] : req.body || {},
                         expiresAt: extractId(req)(data)('x-albert-expires') ? Date.now() + 3600000 : null
@@ -161,7 +162,7 @@ module.exports = {
             const ValidateJWT = secret => async token => {
                 const ThrowInvalidTokenErrorError = err => { throw { status: 401, title: 'Unauthorized.', errors: [{ msg: 'Invalid token.', category: 'Authorization' }], trace: err.toString() } }
                 const Decode = secret => async token => jwt.decode(token, secret, false, 'HS256')
-                const AddToRequest = req => async jwt => { req['JWT'] = jwt; req['User'] = { id: jwt.id || jwt.subject, name: jwt.name }; return jwt }
+                const AddToRequest = req => async jwt => { req['JWT'] = jwt; req['User'] = { id: jwt.id || jwt.subject, name: jwt.name , role : jwt.role, class : jwt.class}; return jwt }
                 return $M(AddToRequest(req), Decode(secret))(token).catch(ThrowInvalidTokenErrorError)
 
             }
