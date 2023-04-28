@@ -112,7 +112,7 @@ module.exports = {
                         partition: (req.JWT) ? req.JWT.partition : null,
                         user: req.User,
                         id: extractId(req)(data)('id') || extractId(req)(data)('albertId'),
-                        //class : req.ACL ? req.ACL.class : null,
+                        class : req.ACL ? req.ACL.inheritedClass || req.ACL.class : null,
                         parentId: extractId(req)(data)('parentId'),
                         data: (index != -1) ? req.body[index] : req.body || {},
                         expiresAt: extractId(req)(data)('x-albert-expires') ? Date.now() + 3600000 : null
