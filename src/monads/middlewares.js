@@ -19,8 +19,6 @@ module.exports = {
     Start: label => (req, res, next) => { if (!req.timers) req.timers = {}; { const start = Date.now(); req.timers[label] = { start, end: start } }; if (next) { next() } }, // Timer start
     End: label => (req, res, next) => { res.on('finish', function () { if (req.timers) { req.timers[label].end = Date.now() } }); if (next) { next() } }, // Timer End
     Metrics: (req, res, next) => {
-        let tenantId = extractId(req)((req.JWT) ? req.JWT : {})('tenantId')
-        let partition = (req.JWT) ? req.JWT.partition : undefined
         res.on('finish',
             () => {
                 if (!req.path.endsWith('health')) {
@@ -32,8 +30,8 @@ module.exports = {
                             region: process.env.REGION,
                             name: process.env.NAME,
                             method: req.method,
-                            tenantId,
-                            partition,
+                            tenantId: extractId(req)((req.JWT) ? req.JWT : {})('tenantId'),
+                            partition: (req.JWT) ? req.JWT.partition : null,
                             status: res.statusCode,
                             url: req.path,
                             operationId: req.operationid,
@@ -69,6 +67,8 @@ module.exports = {
                     method: req.method,
                     useragent: ua.parse(req.headers['user-agent']),
                     url: req.path,
+                    tenantId: extractId(req)((req.JWT) ? req.JWT : {})('tenantId'),
+                    partition: (req.JWT) ? req.JWT.partition : null,
                     operationId: req.operationid,
                     query: req.query,
                     body: postBody,
@@ -95,8 +95,9 @@ module.exports = {
         
 
         const printActivity = req => lst => index => data => {
-
-            if (!req.path.endsWith('health') && res.statusCode < 300) {
+            if (req.headers.uuid != undefined || null && req.method == 'GET'){
+                next()
+            } else if (!req.path.endsWith('health') && res.statusCode < 300) {
                 Print(JSON.stringify(
                     {
                         type: 'activity',
@@ -116,7 +117,7 @@ module.exports = {
                         parentId: extractId(req)(data)('parentId'),
                         data: (index != -1) ? req.body[index] : req.body || {},
                         expiresAt: extractId(req)(data)('x-albert-expires') ? Date.now() + 3600000 : null
-                    }))
+                }))
             }
         }
 
