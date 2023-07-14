@@ -60,7 +60,7 @@ module.exports = {
                 {
                     type: 'request',
                     uuid: req.uuid,
-                    userIP: req.ip,
+                    ip: req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'] : (req.socket && req.socket.remoteAddress ? req.socket.remoteAddress : req.ip),
                     env: process.env.ENV,
                     region: process.env.REGION,
                     name: process.env.NAME,
