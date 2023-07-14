@@ -60,6 +60,7 @@ module.exports = {
                 {
                     type: 'request',
                     uuid: req.uuid,
+                    userIP: req.ip,
                     env: process.env.ENV,
                     region: process.env.REGION,
                     name: process.env.NAME,
