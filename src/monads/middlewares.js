@@ -117,7 +117,8 @@ module.exports = {
                         class : req.ACL ? req.ACL.inheritedClass || req.ACL.class : null,
                         parentId: extractId(req)(data)('parentId'),
                         data: (index != -1) ? req.body[index] : req.body || {},
-                        expiresAt: extractId(req)(data)('x-albert-expires') ? Date.now() + 3600000 : null
+                        expiresAt: extractId(req)(data)('x-albert-expires') ? Date.now() + 3600000 : null,
+                        ip: req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'] : (req.socket && req.socket.remoteAddress ? req.socket.remoteAddress : req.ip)
                 }))
             }
         }
