@@ -96,7 +96,7 @@ module.exports = {
         
 
         const printActivity = req => lst => index => data => {
-            if ((req.headers.uuid != undefined || null )){
+            if ((req.headers.uuid != undefined || null ) && req.method == 'GET'){
                 return
             } else if (!req.path.endsWith('health') && res.statusCode < 300) {
                 Print(JSON.stringify(
