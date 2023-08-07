@@ -165,7 +165,7 @@ module.exports = {
             const ValidateJWT = secret => async token => {
                 const ThrowInvalidTokenErrorError = err => { throw { status: 401, title: 'Unauthorized.', errors: [{ msg: 'Invalid token.', category: 'Authorization' }], trace: err.toString() } }
                 const Decode = secret => async token => jwt.decode(token, secret, false, 'HS256')
-                const AddToRequest = req => async jwt => { req['JWT'] = jwt; req['User'] = { id: jwt.id || jwt.subject, name: jwt.name , role : jwt.role, class : jwt.class}; return jwt }
+                const AddToRequest = req => async jwt => { req['JWT'] = jwt; req['User'] = { id: jwt.id || jwt.subject, name: jwt.name , role : jwt.role, class : jwt.class, orgClass : jwt.orgClass, orgRole : jwt.orgRole}; return jwt }
                 return $M(AddToRequest(req), Decode(secret))(token).catch(ThrowInvalidTokenErrorError)
 
             }
