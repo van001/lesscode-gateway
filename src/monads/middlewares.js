@@ -13,8 +13,8 @@ const helmet  = require('helmet')
 const CORSWhitelist = ['localhost', 'albertinvent', 'albertinventdev','henkel']
 const extractId = req => res => id => (res ? res[id] : null) || req.params[id] || req.query[id] || req.headers[id]
 module.exports = {
-    BodyParserJSON: bodyParser.json({ limit: 1000000 }),
-    BodyParserURLEncoded: bodyParser.urlencoded({ extended: false }),
+    BodyParserJSON: bodyParser.json({ limit: '10mb' }),
+    BodyParserURLEncoded: bodyParser.urlencoded({ extended: false, limit: '10mb' }),
     UUID: (req, res, next) => { req.uuid = req.headers.uuid || uuidv1(); res.header('uuid', req.uuid); next() },
     Start: label => (req, res, next) => { if (!req.timers) req.timers = {}; { const start = Date.now(); req.timers[label] = { start, end: start } }; if (next) { next() } }, // Timer start
     End: label => (req, res, next) => { res.on('finish', function () { if (req.timers) { req.timers[label].end = Date.now() } }); if (next) { next() } }, // Timer End
