@@ -196,7 +196,7 @@ module.exports = {
         //console.log = req['Logger'].Info
         next()
     },
-    CORS: cors((origin , cb) => { cb(null, { origin: CORSWhitelist.indexOf(origin)? true : false })}),
+    CORS: cors((origin , cb) => { cb(null, { origin: CORSWhitelist.indexOf(origin)? true : false, exposedHeaders : ['X-Alb-Mfa-Tenants','X-Alb-Tenants']})}),
     Compression: compression(),
     Helmet: helmet()
 }
