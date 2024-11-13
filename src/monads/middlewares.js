@@ -5,7 +5,7 @@ const { $M, Print, lmap, lmapA, Wait, mslice } = require('lesscode-fp')
 const { v1: uuidv1 } = require('uuid')
 const cors = require('cors')
 const bodyParser = require('body-parser')
-const ua = require('useragent')
+const UAParser=require('ua-parser-js');
 const jwt = require('jwt-simple')
 const dotenv = require('dotenv').config()
 const compression = require('compression')
@@ -46,6 +46,25 @@ module.exports = {
         next()
     },
     Request: (req, res, next) => {
+        const parseUserAgent=(userAgentString)=>{  
+            const parser=new UAParser(userAgentString);  
+            const result=parser.getResult();  
+            const devToolIdentifiers=["PostmanRuntime","node-fetch","axios","Python","Go-http-client"];  
+            const deviceType=result.device?.type;  
+            const browserName=result.browser?.name;  
+            const category=deviceType==="mobile"?(browserName?"Mobile Browser":"Mobile App"):browserName?"Browser":devToolIdentifiers.some(id=>userAgentString.includes(id))?"Dev Tool":"Other";  
+            const osName=result.os.name==="Mac OS"&&userAgentString.includes("Mac OS X")?"Mac OS X":result.os.name;  
+            const appVersion=["Mobile App","Mobile Browser","Dev Tool"].includes(category)  
+              ? userAgentString.match(/([A-Za-z]+)[\/\-]([\d.]+)/)?.slice(1,3).reduce((acc,cur,idx)=>(acc[idx===0?"appName":"version"]=cur,acc),{})  
+              : undefined;  
+            return {  
+              category,  
+              browser:{name:browserName,version:result.browser.version},  
+              os:{name:osName,version:result.os.version},  
+              device:{type:deviceType,model:result.device?.model,vendor:result.device?.vendor},  
+              appVersion  
+            };  
+        }; 
         let postBody = Object.assign({}, req.body)
         if (postBody) {
             delete postBody.token
@@ -66,7 +85,7 @@ module.exports = {
                     name: process.env.NAME,
                     user: req.User,
                     method: req.method,
-                    useragent: ua.parse(req.headers['user-agent']),
+                    useragent: parseUserAgent(req.headers['user-agent']),
                     url: req.path,
                     tenantId: extractId(req)((req.JWT) ? req.JWT : {})('tenantId'),
                     partition: (req.JWT) ? req.JWT.partition : null,

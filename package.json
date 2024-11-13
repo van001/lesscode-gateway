@@ -36,7 +36,7 @@
     "save": "^2.4.0",
     "swagger-ui-dist": "^4.6.2",
     "swagger-ui-express": "^4.1.4",
-    "useragent": "^2.3.0",
+    "ua-parser-js": "^1.0.39",
     "uuid": "^8.3.2",
     "validator": "^13.7.0",
     "yaml": "^1.10.0",
